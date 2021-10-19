@@ -26,8 +26,9 @@ void	Server::createSocket()
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd == -1)
 	{
-		std::cout << "Failed to create socket. errno: " << errno << std::endl;
-		exit(EXIT_FAILURE);
+		throw bad_alloc("Failed to create socket.");
+		// std::cout <<  << errno << std::endl;
+		// exit(EXIT_FAILURE);
 	}
 }
 
@@ -85,9 +86,7 @@ void	Server::processMessages()
 		for (size_t i = 0; i < userFDs.size(); i++)
 		{
 			if (userFDs[i].revents & POLLIN)
-			{
 				send(connectedUsers[i]->getSockfd(), "placeholder\n", 12, 0);
-			}
 			userFDs[i].revents = 0;
 		}
 	}

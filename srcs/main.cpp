@@ -15,40 +15,39 @@ void	sigHandler(int signum)
 
 int main(int argc, char **argv)
 {
-	if (argc < 2)
-	{
-		std::cout << "Usage: ./webserv <port>" << std::endl;
-		exit(EXIT_FAILURE);
+	try {
+		if (argc < 2)
+			throw std::invalid_argument("Usage: ./webserv <port>");
+		int port = atoi(argv[1]);
+
+		if (port < 1024 || port > 49151)
+			throw std::invalid_argument("Wrong port!");
+
+		Server		server(port);
+
+		// Create a socket (IPv4(AF_INET), TCP)
+		server.createSocket();
+
+		// Listen to port on any address
+		server.bindSocket();
+
+		// Start listening.
+		server.listenSocket();
+
+		fcntl(server.getSockfd(), F_SETFL, O_NONBLOCK);
+
+		signal(SIGINT, sigHandler);
+
+		while (work)
+		{
+			// Grab a connection from the queue
+			server.grabConnection();
+
+			server.processMessages();
+		}
 	}
-
-	int port = atoi(argv[1]);
-
-	if (port < 1024 || port > 49151)
+	catch (std::exception & ex)
 	{
-		std::cout << "Wrong port!" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-
-	Server		server(port);
-
-	// Create a socket (IPv4, TCP)
-	server.createSocket();
-
-	// Listen to port on any address
-	server.bindSocket();
-
-	// Start listening.
-	server.listenSocket();
-
-	fcntl(server.getSockfd(), F_SETFL, O_NONBLOCK);
-
-	signal(SIGINT, sigHandler);
-
-	while (work)
-	{
-		// Grab a connection from the queue
-		server.grabConnection();
-
-		server.processMessages();
+		std::cout << ex.what() << std::endl;
 	}
 }
