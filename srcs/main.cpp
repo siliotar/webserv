@@ -34,8 +34,6 @@ int main(int argc, char **argv)
 		// Start listening.
 		server.listenSocket();
 
-		fcntl(server.getSockfd(), F_SETFL, O_NONBLOCK);
-
 		signal(SIGINT, sigHandler);
 
 		while (work)
