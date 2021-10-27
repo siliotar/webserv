@@ -98,7 +98,7 @@ void	Server::processMessages()
 				}
 				buf[q] = 0;
 				std::cout << buf << std::endl;
-				send(connectedUsers[i]->getSockfd(), base.c_str(), base.length(), MSG_NOSIGNAL);
+				send(connectedUsers[i]->getSockfd(), base.c_str(), base.length(), SO_NOSIGPIPE);
 			}
 			userFDs[i].revents = 0;
 		}
