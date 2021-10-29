@@ -74,7 +74,8 @@ void	Server::grabConnection()
 	}
 }
 
-std::string base = "HTTP/1.1 200 OK\nContent-Length: 17\nContent-Type: text\r\n\r\nIt's just a text!\n";
+std::string base = "HTTP/1.1 200 OK\nContent-Length: 117\nContent-Type: html\r\n\r\n<!DOCTYPE html>\n<html>\n<head>\n<title>My site</title>\n</head>\n<body>\n<div>\n<p>Hello World!</p>\n</div>\n</body>\n</html>\n";
+
 
 void	Server::processMessages()
 {
@@ -97,7 +98,10 @@ void	Server::processMessages()
 					continue ;
 				}
 				buf[q] = 0;
+				if (buf[0] == 'G' || buf[0] == 'D' || buf[0] == 'P')
+					Requset Get(buf);
 				std::cout << buf << std::endl;
+				
 				send(connectedUsers[i]->getSockfd(), base.c_str(), base.length(), SO_NOSIGPIPE);
 			}
 			userFDs[i].revents = 0;

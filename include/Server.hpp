@@ -17,6 +17,7 @@ class History;
 #include <string>
 #include <map>
 #include "User.hpp"
+#include "Request.hpp"
 
 #define	DISCONNECT	-2
 

@@ -40,7 +40,6 @@ int main(int argc, char **argv)
 		{
 			// Grab a connection from the queue
 			server.grabConnection();
-
 			server.processMessages();
 		}
 	}

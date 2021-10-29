@@ -21,7 +21,6 @@ class User
 {
 	private:
 		int									sockfd;
-
 		User();
 		User(const User& copy);
 		User	&operator=(const User& other);
