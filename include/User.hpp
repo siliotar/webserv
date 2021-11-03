@@ -1,8 +1,6 @@
 #pragma once
 
 class Server;
-class Message;
-class Channel;
 
 #include <string>
 #include <time.h>
@@ -15,12 +13,14 @@ class Channel;
 #include <sys/socket.h>
 #include <algorithm>
 #include <fcntl.h>
-#include "Server.hpp"
+#include <stdio.h>
 
 class User
 {
 	private:
-		int									sockfd;
+		int				_sockfd;
+		std::string		_message;
+		char			_buff[1024];
 
 		User();
 		User(const User& copy);
@@ -31,11 +31,16 @@ class User
 
 		// Getters
 
-		int									getSockfd() const;
+		int				getSockfd() const;
+		const std::string	&getMessage() const;
 
 		// Setters
 
 		
 		// Other methods
 
+		int			readMessage();
+
 };
+
+#include "Server.hpp"

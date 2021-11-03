@@ -70,25 +70,24 @@ void	Server::grabConnection()
 		pfd.events = POLLIN;
 		pfd.revents = 0;
 		userFDs.push_back(pfd);
+		fcntl(connection, F_SETFL, O_NONBLOCK);
 		connectedUsers.push_back(new User(connection));
 	}
 }
 
-std::string base = "HTTP/1.1 200 OK\nContent-Length: 17\nContent-Type: text\r\n\r\nIt's just a text!\n";
+#include "ReplyPages.hpp"
 
 void	Server::processMessages()
 {
-	char buf[10240];
 	int	pret = poll(userFDs.data(), userFDs.size(), timeout);
 	if (pret != 0)
 	{
-		// Read from the connection
+		ReplyPages rp;
 		for (size_t i = 0; i < userFDs.size(); i++)
 		{
 			if (userFDs[i].revents & POLLIN)
 			{
-				int q = recv(connectedUsers[i]->getSockfd(), buf, 10240, 0);
-				if (q == 0)
+				if (!connectedUsers[i]->readMessage())
 				{
 					close(connectedUsers[i]->getSockfd());
 					connectedUsers.erase(connectedUsers.begin() + i);
@@ -96,9 +95,11 @@ void	Server::processMessages()
 					--i;
 					continue ;
 				}
-				buf[q] = 0;
-				std::cout << buf << std::endl;
-				send(connectedUsers[i]->getSockfd(), base.c_str(), base.length(), MSG_NOSIGNAL);
+				std::cout << GREEN << connectedUsers[i]->getMessage() << std::endl << RESET;
+				rp.setReplyBodyFromFile(200, "www/index.html");
+				std::string	response = rp.getReply(404);
+				std::cout << ORANGE << response.c_str() << std::endl << RESET;
+				send(connectedUsers[i]->getSockfd(), response.c_str(), response.length(), MSG_NOSIGNAL);
 			}
 			userFDs[i].revents = 0;
 		}

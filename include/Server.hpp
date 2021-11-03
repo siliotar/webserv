@@ -1,9 +1,6 @@
 #pragma once
 
 class User;
-class Channel;
-class UserInfo;
-class History;
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -16,11 +13,10 @@ class History;
 #include <fstream>
 #include <string>
 #include <map>
-#include "User.hpp"
+#include <vector>
+#include "Color.hpp"
 
 #define	DISCONNECT	-2
-
-typedef  int (Server::*Method) (const Message &, User &);
 
 class Server
 {
@@ -53,3 +49,5 @@ class Server
 		void									processMessages();
 		int										hadleMessages(User &user);
 };
+
+#include "User.hpp"

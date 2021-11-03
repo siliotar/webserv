@@ -2,13 +2,22 @@ NAME= webserv
 
 SOURCEFILES=	main.cpp \
 				Server.cpp \
-				User.cpp
+				User.cpp \
+				Config.cpp \
+				utils.cpp \
+				Webserver.cpp \
+				ReplyPages.cpp \
+				MIME.cpp \
+				ServerConfig.cpp \
+				Location.cpp
 
 SOURCEFOLDER= srcs/
 
 OSOURCEFOLDER= objects/
 
 INCLUDEFOLDER= include/
+
+FLAGS=  -Wall -Werror -Wextra -std=c++98
 
 SOURCE= $(addprefix $(SOURCEFOLDER), $(SOURCEFILES))
 
@@ -21,7 +30,7 @@ $(OSOURCEFOLDER):
 	mkdir objects/commands
 
 $(OSOURCEFOLDER)%.o: $(SOURCEFOLDER)%.cpp
-	clang++ -Wall -Werror -Wextra -c $< -o $@ -std=c++98 -I $(INCLUDEFOLDER)
+	clang++ $(FLAGS) -c $< -o $@ -I $(INCLUDEFOLDER)
 
 $(NAME): $(OSOURCEFOLDER) $(OSOURCE)
 	clang++ $(OSOURCE) -o $(NAME)

@@ -4,6 +4,7 @@
 #include "User.hpp"
 #include "Server.hpp"
 #include <csignal>
+#include "Config.hpp"
 
 bool	work = true;
 
@@ -16,11 +17,12 @@ void	sigHandler(int signum)
 int main(int argc, char **argv)
 {
 	try {
+		Config conf("conf/default.conf");
 		if (argc < 2)
 			throw std::invalid_argument("Usage: ./webserv <port>");
 		int port = atoi(argv[1]);
 
-		if (port < 1024 || port > 49151)
+		if (port < 1 || port > 49151)
 			throw std::invalid_argument("Wrong port!");
 
 		Server		server(port);
@@ -47,5 +49,9 @@ int main(int argc, char **argv)
 	catch (std::exception & ex)
 	{
 		std::cout << ex.what() << std::endl;
+	}
+	catch(const char *err)
+	{
+		std::cout << err << std::endl;
 	}
 }
