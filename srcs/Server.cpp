@@ -73,9 +73,8 @@ void	Server::grabConnection()
 		connectedUsers.push_back(new User(connection));
 	}
 }
-
-std::string base = "HTTP/1.1 200 OK\nContent-Length: 117\nContent-Type: html\r\n\r\n<!DOCTYPE html>\n<html>\n<head>\n<title>My site</title>\n</head>\n<body>\n<div>\n<p>Hello World!</p>\n</div>\n</body>\n</html>\n";
-
+std::string base = "HTTP/1.1 200 OK\nContent-Length: 310\nContent-Type: html\r\n\r\n<!DOCTYPE html>\n<html>\n<head>\n<title>My site</title>\n</head>\n<body>\n<div>\n<p>Nikita, before he became famous!</p>\n</div>\n</body><img src=\"https://sun9-20.userapi.com/impf/wXwTZvFnIjGrztBs9HORaivc44nsoolb1sHZwQ/EbvSGjL-fiU.jpg?size=1371x2048&quality=96&sign=ed8f5582d8ac86f28774ce817f6ac1f3&type=album\">\n</html>\n";
+std::string bas = "HTTP/1.1 200 OK\nContent-Length: 49\nContent-Type: image/webp\r\n\r\n/Users/rnancee/Desktop/webs/srcs/favicon.webp";
 
 void	Server::processMessages()
 {
@@ -98,11 +97,16 @@ void	Server::processMessages()
 					continue ;
 				}
 				buf[q] = 0;
-				if (buf[0] == 'G' || buf[0] == 'D' || buf[0] == 'P')
-					Requset Get(buf);
+				// if (buf[0] == 'G' || buf[0] == 'D' || buf[0] == 'P')
+				// 	Requset Get(buf);
+
 				std::cout << buf << std::endl;
-				
-				send(connectedUsers[i]->getSockfd(), base.c_str(), base.length(), SO_NOSIGPIPE);
+				if (buf[5] == 'f')
+				{
+					send(connectedUsers[i]->getSockfd(), bas.c_str(), bas.length(), SO_NOSIGPIPE);
+				}
+				else
+					send(connectedUsers[i]->getSockfd(), base.c_str(), base.length(), SO_NOSIGPIPE);
 			}
 			userFDs[i].revents = 0;
 		}
