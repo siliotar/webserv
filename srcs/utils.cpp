@@ -5,16 +5,13 @@
 std::vector<std::string> multisplit(const std::string & my_str, const std::string & charter)
 {
     std::vector<std::string> result;
-
     int last = 0;
     for (int i = 0; i < my_str.size(); i++)
-    {
         if (charter.find(my_str[i]) != -1)
         {
             result.push_back(my_str.substr(last, i - last));
             last = i + 1;
         }
-    }
     result.push_back(my_str.substr(last, my_str.size() - last));
     return result;
 }
