@@ -1,11 +1,9 @@
 #pragma once
 
-class User;
 class ServerConfig;
 
 #include <vector>
 #include <set>
-#include "User.hpp"
 #include "ServerConfig.hpp"
 #include "t_listen.hpp"
 

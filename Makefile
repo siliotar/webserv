@@ -2,7 +2,6 @@ NAME= webserv
 
 SOURCEFILES=	main.cpp \
 				Server.cpp \
-				User.cpp \
 				Config.cpp \
 				utils.cpp \
 				Webserver.cpp \

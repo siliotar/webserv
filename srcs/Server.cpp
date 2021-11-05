@@ -12,9 +12,8 @@ Server::~Server()
 
 bool	Server::isListen(unsigned int port) const
 {
-	for (size_t i = 0; i < _config->getListens().size(); ++i)
-		if (_config->getListens()[i].port == port)
-			return true;
+	if (_ports.find(port) != _ports.end())
+		return true;
 	return false;
 }
 

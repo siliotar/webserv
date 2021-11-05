@@ -1,7 +1,6 @@
 #include <string>
 #include <vector>
 #include <fcntl.h>
-#include "User.hpp"
 #include "Webserver.hpp"
 #include <csignal>
 #include "Config.hpp"
