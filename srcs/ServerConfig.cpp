@@ -55,3 +55,18 @@ ServerConfig::~ServerConfig()
 		delete (*it).second;
 	}
 }
+
+const std::vector<t_listen>				&ServerConfig::getListens() const
+{
+	return _listens;
+}
+
+const std::vector<std::string>			&ServerConfig::getNames() const
+{
+	return _names;
+}
+
+const std::map<std::string, Location *>	&ServerConfig::getLocations() const
+{
+	return _locations;
+}

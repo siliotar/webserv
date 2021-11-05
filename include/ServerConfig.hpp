@@ -4,22 +4,14 @@
 #include <string>
 #include <sstream>
 #include "Location.hpp"
-
-typedef struct s_listen
-{
-	unsigned int	inaddr;
-	unsigned int	port;
-	s_listen(unsigned int addr, unsigned int port)
-	: inaddr(addr), port(port)
-	{}
-}t_listen;
+#include "t_listen.hpp"
 
 class ServerConfig : public Location
 {
 	private:
-		std::vector<t_listen>				_listens;
-		std::vector<std::string>			_names;
-		std::map<std::string, Location *>	_locations;
+		std::vector<t_listen>					_listens;
+		std::vector<std::string>				_names;
+		std::map<std::string, Location *>		_locations;
 
 		ServerConfig();
 		ServerConfig(const ServerConfig& copy);
@@ -27,4 +19,8 @@ class ServerConfig : public Location
 	public:
 		ServerConfig(const std::string &config);
 		virtual ~ServerConfig();
+
+		const std::vector<t_listen>				&getListens() const;
+		const std::vector<std::string>			&getNames() const;
+		const std::map<std::string, Location *>	&getLocations() const;
 };

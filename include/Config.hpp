@@ -22,4 +22,5 @@ class Config
 	public:
 		Config(const char *path);
 		virtual ~Config();
+		const std::vector<ServerConfig *>	getServers() const;
 };

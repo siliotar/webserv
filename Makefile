@@ -9,7 +9,11 @@ SOURCEFILES=	main.cpp \
 				ReplyPages.cpp \
 				MIME.cpp \
 				ServerConfig.cpp \
-				Location.cpp
+				Location.cpp \
+				Socket.cpp \
+				ListenSocket.cpp \
+				UserSocket.cpp \
+				SocketContainer.cpp
 
 SOURCEFOLDER= srcs/
 

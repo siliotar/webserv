@@ -2,49 +2,22 @@
 #include <vector>
 #include <fcntl.h>
 #include "User.hpp"
-#include "Server.hpp"
+#include "Webserver.hpp"
 #include <csignal>
 #include "Config.hpp"
 
-bool	work = true;
-
-void	sigHandler(int signum)
-{
-	(void)signum;
-	work = false;
-}
-
 int main(int argc, char **argv)
 {
-	try {
-		Config conf("conf/default.conf");
+	try
+	{
 		if (argc < 2)
-			throw std::invalid_argument("Usage: ./webserv <port>");
-		int port = atoi(argv[1]);
+			throw std::invalid_argument("Usage: ./webserv <config>");
 
-		if (port < 1 || port > 49151)
-			throw std::invalid_argument("Wrong port!");
+		Config conf(argv[1]);
 
-		Server		server(port);
+		Webserver		server(conf);
 
-		// Create a socket (IPv4(AF_INET), TCP)
-		server.createSocket();
-
-		// Listen to port on any address
-		server.bindSocket();
-
-		// Start listening.
-		server.listenSocket();
-
-		signal(SIGINT, sigHandler);
-
-		while (work)
-		{
-			// Grab a connection from the queue
-			server.grabConnection();
-
-			server.processMessages();
-		}
+		server.run();
 	}
 	catch (std::exception & ex)
 	{

@@ -64,3 +64,8 @@ Config::~Config()
 		delete _servers[i];
 	}
 }
+
+const std::vector<ServerConfig *>	Config::getServers() const
+{
+	return _servers;
+}

@@ -1,53 +1,27 @@
 #pragma once
 
 class User;
+class ServerConfig;
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <cstdlib>
-#include <iostream>
-#include <unistd.h>
-#include <errno.h>
-#include <poll.h>
-#include <fstream>
-#include <string>
-#include <map>
 #include <vector>
-#include "Color.hpp"
-
-#define	DISCONNECT	-2
+#include <set>
+#include "User.hpp"
+#include "ServerConfig.hpp"
+#include "t_listen.hpp"
 
 class Server
 {
 	private:
-		int										port;
-		std::vector<User *>						connectedUsers;
-		std::vector<struct pollfd>				userFDs;
-		int										sockfd;
-		sockaddr_in								sockaddr;
-		const id_t								timeout;
+		const ServerConfig		*_config;
+		std::set<int>			_ports;
 
 		Server();
 		Server(const Server& copy);
 		Server	&operator=(const Server& other);
-
 	public:
-		Server(int port);
+		Server(const ServerConfig &config);
 		~Server();
 
-		// Getters
-
-		const int								&getSockfd() const;
-
-		// Server setup
-
-		void									createSocket();
-		void									bindSocket();
-		void									listenSocket();
-		void									grabConnection();
-		void									processMessages();
-		int										hadleMessages(User &user);
+		bool					isListen(unsigned int port) const;
+		const std::set<int>		&getPorts() const;
 };
-
-#include "User.hpp"

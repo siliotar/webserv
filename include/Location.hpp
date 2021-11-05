@@ -16,6 +16,7 @@ class Location
 		std::string						_index;
 		std::string						_redirection;
 
+	private:
 		Location(const Location& copy);
 		Location						&operator=(const Location& other);
 	public:
