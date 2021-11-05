@@ -20,22 +20,21 @@ class Responce : public Request {
 
 	private:
 		const std::string _directoryListingDefult;
-		std::string _directoryListing;		
 	public:
 		Responce(const std::string & request) : Request(request), _directoryListingDefult(readFile("../directory_listing.html"))
 		{
 
 		}
-
-		void AutoIndexOn() {
-			DIR *dirp = opendir(_location.c_str());
+		// If autoindex on, open directory in html 
+		std::string AutoIndexOn( void ) {
+			DIR * dirp = opendir(_location.c_str());
+			if (dirp == 0)
+				throw ("400"); //                									????????????
 			dirent * dp;
 			std::string str = _directoryListingDefult;
 			str.replace(str.find("FILE_DIR"), strlen("FILE_DIR"), _location);
 			str.replace(str.find("FILE_DIR"), strlen("FILE_DIR"), _location);
-
-			int index = _directoryListingDefult.find("<hr>");
-			index += 2;
+			int index = str.find("<hr>") + 4;
 			if (_location != "/") {
 				std::string tmp = "\n<pre><a href=\"../\">..</a></pre>\n";
 				str.insert(index, tmp);
@@ -48,29 +47,24 @@ class Responce : public Request {
 				stat(dp->d_name, &buff);
 				if (std::string(dp->d_name) != "." && std::string(dp->d_name) != "..") {
 					ss << "<pre><a href=\"" << dp->d_name <<  "\">" << dp->d_name;
-				 	if(S_ISDIR(buff.st_mode)) {
-						ss << "/";
-						ss << std::left << std::setw(51 - std::string(dp->d_name).size()) << "</a>";
-						ss << std::left << std::setw(40) << "-";
-
-					}
-					else {
-						ss << std::left << std::setw(52 - std::string(dp->d_name).size()) << "</a>";
-						ss << std::left << std::setw(40) << buff.st_size;
-					}
-					ss  << asctime(gmtime(&(buff.st_ctime)));
-					ss << "</pre>\n";
-					std::string tmp = ss.str();
-					str.insert(index, tmp);
-					index += tmp.size();
+				 	if(S_ISDIR(buff.st_mode))
+						ss << "/" << std::left << std::setw(51 - std::string(dp->d_name).size()) << "</a>" << std::left << std::setw(40) << "-";
+					else
+						ss << std::left << std::setw(52 - std::string(dp->d_name).size()) << "</a>" << std::left << std::setw(40) << buff.st_size;
+					ss  << asctime(gmtime(&(buff.st_ctime))) << "</pre>";
+					str.insert(index, ss.str());
+					index += ss.str().size();
 				}
 			}
 			closedir(dirp);
-			std::fstream ss1("file.html", std::ios::out);
-			ss1 << str;
-			std::cout << str << std::endl;
+			return str;
 		}
-
+		std::string AutoIndexOff( void ) {
+			DIR * dirp = opendir(_location.c_str());
+			if (dirp == 0)
+				throw ("400"); //                									????????????
+			return ("");
+		}
 		void AcceptRanges(const std::string & str) {
 
 		}
