@@ -70,7 +70,9 @@ void	Webserver::run()
 						continue ;
 					}
 					std::cout << user->getMessage() << std::endl;
-					defineServer(user->getMessage(), _sockets[i].socket->getPort());
+					Server	*s = defineServer(user->getMessage(), _sockets[i].socket->getPort());
+					const Location	*loc = s->getLocation("/images");
+					std::cout << loc->getRoot() << std::endl;
 				}
 				_sockets[i].pollfd->revents = 0;
 			}

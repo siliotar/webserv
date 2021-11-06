@@ -23,4 +23,5 @@ class Server
 		bool					isListen(unsigned int port) const;
 		bool					containsName(const std::string &name);
 		const std::set<int>		&getPorts() const;
+		const Location			*getLocation(const std::string &path) const;
 };

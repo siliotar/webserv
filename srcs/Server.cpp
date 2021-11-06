@@ -29,3 +29,22 @@ const std::set<int>		&Server::getPorts() const
 {
 	return _ports;
 }
+
+const Location		*Server::getLocation(const std::string &path) const
+{
+	size_t	maxSize = 0;
+	const Location	*res = _config;
+	std::map<std::string, Location *>::const_iterator	it = _config->getLocations().begin();
+	for (; it != _config->getLocations().end(); ++it)
+	{
+		if (!(*it).first.compare(0, (*it).first.length(), path, 0, (*it).first.length()))
+		{
+			if ((*it).first.length() > maxSize)
+			{
+				maxSize = (*it).first.length();
+				res = (*it).second;
+			}
+		}
+	}
+	return res;
+}
