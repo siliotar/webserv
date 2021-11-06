@@ -27,6 +27,24 @@ Webserver::~Webserver()
 		delete _servers[i];
 }
 
+Server	*Webserver::defineServer(const std::string &msg, int port)
+{
+	size_t	pos;
+	if ((pos = msg.find("Host: ")) == std::string::npos)
+		return 0;
+	std::istringstream	ss(msg.substr(pos));
+	std::string		host;
+	ss >> host >> host;
+	std::vector<Server *>	candidates;
+	for (size_t i = 0; i < _servers.size(); i++)
+		if (_servers[i]->isListen(port))
+			candidates.push_back(_servers[i]);
+	for (size_t i = 0; i < candidates.size(); i++)
+		if (candidates[i]->containsName(host))
+			return candidates[i];
+	return candidates[0];
+}
+
 void	Webserver::run()
 {
 	signal(SIGINT, sigHandler);
@@ -52,6 +70,7 @@ void	Webserver::run()
 						continue ;
 					}
 					std::cout << user->getMessage() << std::endl;
+					defineServer(user->getMessage(), _sockets[i].socket->getPort());
 				}
 				_sockets[i].pollfd->revents = 0;
 			}

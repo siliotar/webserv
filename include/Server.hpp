@@ -21,5 +21,6 @@ class Server
 		~Server();
 
 		bool					isListen(unsigned int port) const;
+		bool					containsName(const std::string &name);
 		const std::set<int>		&getPorts() const;
 };

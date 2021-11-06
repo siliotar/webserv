@@ -25,6 +25,8 @@ class Webserver
 		Webserver();
 		Webserver(const Webserver& copy);
 		Webserver	&operator=(const Webserver& other);
+
+		Server						*defineServer(const std::string &msg, int port);
 	public:
 		Webserver(const Config &config);
 		virtual ~Webserver();

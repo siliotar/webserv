@@ -17,6 +17,14 @@ bool	Server::isListen(unsigned int port) const
 	return false;
 }
 
+bool	Server::containsName(const std::string &name)
+{
+	for (size_t i = 0; i < _config->getNames().size(); i++)
+		if (_config->getNames()[i] == name)
+			return true;
+	return false;
+}
+
 const std::set<int>		&Server::getPorts() const
 {
 	return _ports;

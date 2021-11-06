@@ -19,6 +19,12 @@ ServerConfig::ServerConfig(const std::string &config)
 			std::vector<std::string>	host = split(tmp[0], ".");
 			if (host.size() != 4)
 				throw "Wrong config!";
+			if (host[0].find_first_not_of("0123456789") != std::string::npos || \
+				host[1].find_first_not_of("0123456789") != std::string::npos || \
+				host[2].find_first_not_of("0123456789") != std::string::npos || \
+				host[3].find_first_not_of("0123456789") != std::string::npos || \
+				tmp[1].find_first_not_of("0123456789") != std::string::npos)
+				throw "Wrong config!";
 			unsigned int	inaddr = atoi(host[0].c_str()) << 24 | atoi(host[1].c_str()) << 16 | atoi(host[2].c_str()) << 8 | atoi(host[3].c_str());
 			unsigned int	port = atoi(tmp[1].c_str());
 			_listens.push_back(t_listen(inaddr, port));
