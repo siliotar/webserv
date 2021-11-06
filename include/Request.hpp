@@ -42,7 +42,7 @@ class Request {
 
 		void operationInit( void );
 		
-		void Accept(const std::string & str);
+		void accept(const std::string & str);
 
 		void AcceptEncoding(const std::string & str);
 

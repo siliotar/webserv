@@ -3,7 +3,7 @@
 void Request::operationInit( void )
 {
 	mapFoo["Accept-Encoding:"] = &Request::AcceptEncoding;
-	mapFoo["Accept:"] = &Request::Accept;
+	mapFoo["Accept:"] = &Request::accept;
 	mapFoo["Accept-Language:"] = &Request::AcceptLanguage;
 	mapFoo["Authorization:"] = &Request::Authorization;
 	mapFoo["Cache-Control:"] = &Request::Conection;
@@ -49,7 +49,7 @@ Request::Request(const std::string & content)
 }
 
 // what do this information??
-void Request::Accept(const std::string & str) {
+void Request::accept(const std::string & str) {
 
 	std::string tmp; 
 	tmp += std::string(NOT_DISPLAYED) + "():<>?@[\\]{}";
@@ -94,7 +94,7 @@ void Request::AcceptLanguage(const std::string & str) {
 }
 
 void Request::Authorization(const std::string & str) {
-	std::vector<std::string> vec = multisplit(str, " ,");
+	std::vector<std::string> vec = split(str, " ,");
 	if (vec[0] == "Basic") {
 		
 	}
@@ -128,7 +128,7 @@ void Request::Conection(const std::string & str)
 
 void Request::Data(const std::string & str)
 {
-		std::vector<std::string> data = multisplit(str, " :");
+		std::vector<std::string> data = split(str, " :");
 	if (!parsData(data))
 		throw ("406::Data"); // ???????????? 
 	_dataMassage = str;
@@ -145,7 +145,7 @@ void Request::From(const std::string & str) {
 }
 
 void Request::Host(const std::string & str) {
-	std::vector<std::string> tmp = multisplit(str, ":");
+	std::vector<std::string> tmp = split(str, ":");
 	if (tmp.size() != 2)
 		throw ("406::host"); //??????????????
 	_host = tmp[0];
@@ -153,26 +153,26 @@ void Request::Host(const std::string & str) {
 }
 
 void Request::IfMatch(const std::string & str) {
-	_ifMatch = multisplit(str, " ");
+	_ifMatch = split(str, " ");
 	if (_ifMatch.size() < 1)
 		throw ("406::ifMatch"); // ???????????????
 }
 
 void Request::IfModifiedSince(const std::string & str) {
-		std::vector<std::string> data = multisplit(str, " :");
+		std::vector<std::string> data = split(str, " :");
 		if (!parsData(data))
 		throw ("406::IfModifiedSince"); // ???????????? 
 	_dataIfModifiedSince = str;
 }
 
 void Request::IfNoneMatch(const std::string & str) {
-	_ifNoneMatch = multisplit(str, " ");
+	_ifNoneMatch = split(str, " ");
 	if (_ifNoneMatch.size() < 1)
 		throw ("406::IfNoneMatch"); // ???????????????
 }
 
 void Request::IfRange(const std::string & str) {
-	std::vector<std::string> data = multisplit(str, " :");
+	std::vector<std::string> data = split(str, " :");
 	if (data.size() == 1)
 	{
 		_ifRange = str;
@@ -184,7 +184,7 @@ void Request::IfRange(const std::string & str) {
 }
 
 void Request::IfUnmodifiedSince(const std::string & str) {
-		std::vector<std::string> data = multisplit(str, " :");
+		std::vector<std::string> data = split(str, " :");
 		if (!parsData(data))
 		throw ("406::IfModifiedSince"); // ???????????? 
 	_ifUnmodifiedSince = str;

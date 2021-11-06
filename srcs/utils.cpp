@@ -32,32 +32,18 @@ std::vector<std::string>	split(std::string str, const std::string &delim)
 	return ret;
 }
 
-std::vector<std::string> multisplit(const std::string & my_str, const std::string & charter)
-{
-    std::vector<std::string> result;
-    int last = 0;
-    for (size_t i = 0; i < my_str.size(); i++)
-        if (charter.find(my_str[i]) != std::string::npos)
-        {
-            result.push_back(my_str.substr(last, i - last));
-            last = i + 1;
-        }
-    result.push_back(my_str.substr(last, my_str.size() - last));
-    return result;
-}
-
 std::vector<std::pair<std::string, double> > value_prec(const std::string & str)
 {
     std::vector<std::pair<std::string, double> > result;
 
-    std::vector<std::string> vec = multisplit(str, ",");
+    std::vector<std::string> vec = split(str, ",");
     for (size_t i = 0; i < vec.size(); i++)
     {
         if (vec[i].find(';') == std::string::npos)
             result.push_back(make_pair(vec[i], 1));
         else
         {
-            std::vector<std::string> q = multisplit(vec[i], ":=");
+            std::vector<std::string> q = split(vec[i], ":=");
             result.push_back(make_pair(*q.begin(), atof((*(--q.end())).c_str())));
         }
     }

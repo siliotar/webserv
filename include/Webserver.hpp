@@ -14,6 +14,7 @@ class SocketContainer;
 #include "ListenSocket.hpp"
 #include "UserSocket.hpp"
 #include "SocketContainer.hpp"
+#include "Response.hpp"
 
 class Webserver
 {
