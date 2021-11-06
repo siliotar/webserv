@@ -8,7 +8,7 @@ class SocketContainer;
 
 #include <vector>
 #include <poll.h>
-#include <signal.h>
+#include <csignal>
 #include "Server.hpp"
 #include "Config.hpp"
 #include "ListenSocket.hpp"

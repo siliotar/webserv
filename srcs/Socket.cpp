@@ -15,3 +15,8 @@ int		Socket::getPort() const
 {
 	return _port;
 }
+
+void	Socket::setNonblock()
+{
+	fcntl(_fd, F_SETFL, O_NONBLOCK);
+}

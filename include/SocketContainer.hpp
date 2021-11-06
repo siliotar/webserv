@@ -8,6 +8,14 @@ class Socket;
 #include <stddef.h>
 #include "Socket.hpp"
 
+typedef struct		s_sockdata
+{
+	s_sockdata(Socket *sock, struct pollfd *pollfd) :
+	socket(sock), pollfd(pollfd) {}
+	Socket			*socket;
+	struct pollfd	*pollfd;
+}					sockdata;
+
 class SocketContainer
 {
 	private:
@@ -24,4 +32,7 @@ class SocketContainer
 		void						remove(size_t idx);
 		std::vector<Socket *>		&getSockets();
 		std::vector<struct pollfd>	&getPollfds();
+		size_t						size() const;
+
+		sockdata					operator[](size_t n);
 };

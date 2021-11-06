@@ -35,16 +35,16 @@ void	Webserver::run()
 		int	pret = poll(_sockets.getPollfds().data(), _sockets.getPollfds().size(), _timeout);
 		if (pret != 0)
 		{
-			for (size_t i = 0; i < _sockets.getPollfds().size(); ++i)
+			for (size_t i = 0; i < _sockets.size(); ++i)
 			{
-				if (_sockets.getPollfds()[i].revents & POLLIN)
+				if (_sockets[i].pollfd->revents & POLLIN)
 				{
-					if (ListenSocket *lis = dynamic_cast<ListenSocket*>(_sockets.getSockets()[i]))
+					if (ListenSocket *lis = dynamic_cast<ListenSocket*>(_sockets[i].socket))
 					{
 						_sockets.add(new UserSocket(lis->grabConnection(), lis->getPort()));
 						break;
 					}
-					UserSocket	*user = dynamic_cast<UserSocket*>(_sockets.getSockets()[i]);
+					UserSocket	*user = dynamic_cast<UserSocket*>(_sockets[i].socket);
 					if (!user->readMessage())
 					{
 						_sockets.remove(i);
@@ -53,7 +53,7 @@ void	Webserver::run()
 					}
 					std::cout << user->getMessage() << std::endl;
 				}
-				_sockets.getPollfds()[i].revents = 0;
+				_sockets[i].pollfd->revents = 0;
 			}
 		}
 	}

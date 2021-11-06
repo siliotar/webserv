@@ -4,6 +4,7 @@ UserSocket::UserSocket(int fd, int port)
 {
 	_fd = fd;
 	_port = port;
+	setNonblock();
 }
 
 UserSocket::~UserSocket()

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fcntl.h>
+
 class Socket
 {
 	protected:
@@ -14,4 +16,5 @@ class Socket
 
 		int						getSockFd() const;
 		int						getPort() const;
+		void					setNonblock();
 };

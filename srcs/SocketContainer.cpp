@@ -35,3 +35,13 @@ std::vector<struct pollfd>	&SocketContainer::getPollfds()
 {
 	return _pollfds;
 }
+
+size_t						SocketContainer::size() const
+{
+	return _sockets.size();
+}
+
+sockdata					SocketContainer::operator[](size_t n)
+{
+	return sockdata(_sockets[n], &(_pollfds[n]));
+}

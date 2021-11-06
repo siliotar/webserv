@@ -6,6 +6,7 @@ ListenSocket::ListenSocket(int port)
 	createSocket();
 	bindSocket();
 	listenSocket();
+	setNonblock();
 }
 
 ListenSocket::~ListenSocket()
@@ -52,7 +53,6 @@ int		ListenSocket::grabConnection()
 	int connection = accept(_fd, (struct sockaddr*)&_sockaddr, (socklen_t*)&addrlen);
 	if (connection < 0)
 		throw "Failed to accept connection!";
-	fcntl(connection, F_SETFL, O_NONBLOCK);
 	return connection;
 }
 

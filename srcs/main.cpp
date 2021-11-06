@@ -1,8 +1,4 @@
-#include <string>
-#include <vector>
-#include <fcntl.h>
 #include "Webserver.hpp"
-#include <csignal>
 #include "Config.hpp"
 
 int main(int argc, char **argv)
