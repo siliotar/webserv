@@ -69,6 +69,10 @@ void	Webserver::run()
 						--i;
 						continue ;
 					}
+					Response response_user(user->getMessage(), *(_servers[0]));
+					ReplyPages reply;
+					reply.setReplyBody(200, response_user.getResponse(), "text/html");
+					send(user->getSockFd(), reply.getReply(200).c_str(), reply.getReply(200).size(), 0);
 					std::cout << user->getMessage() << std::endl;
 					Server	*s = defineServer(user->getMessage(), _sockets[i].socket->getPort());
 					const Location	*loc = s->getLocation("/images");

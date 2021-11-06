@@ -12,7 +12,9 @@ SOURCEFILES=	main.cpp \
 				Socket.cpp \
 				ListenSocket.cpp \
 				UserSocket.cpp \
-				SocketContainer.cpp
+				SocketContainer.cpp \
+				Response.cpp \
+				Request.cpp
 
 SOURCEFOLDER= srcs/
 
@@ -20,7 +22,7 @@ OSOURCEFOLDER= objects/
 
 INCLUDEFOLDER= include/
 
-FLAGS=  -Wall -Werror -Wextra -std=c++98
+FLAGS=  -Wall  -Wextra -std=c++98
 
 SOURCE= $(addprefix $(SOURCEFOLDER), $(SOURCEFILES))
 
