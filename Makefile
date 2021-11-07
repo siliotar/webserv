@@ -22,7 +22,7 @@ OSOURCEFOLDER= objects/
 
 INCLUDEFOLDER= include/
 
-FLAGS=  -Wall  -Wextra -std=c++98
+FLAGS=  -Wall -Werror -Wextra -std=c++98
 
 SOURCE= $(addprefix $(SOURCEFOLDER), $(SOURCEFILES))
 

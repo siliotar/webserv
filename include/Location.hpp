@@ -29,15 +29,19 @@ class Location
 		bool							isAutoindex() const;
 		const std::string				&getName() const;
 		const std::string				&getRoot() const;
-		ReplyPages						&getErrorPages();
+		const ReplyPages				&getErrorPages() const;
 		size_t							getBodySize() const;
 		const std::vector<std::string>	&getAllowMethods() const;
 		const std::string				&getIndex() const;
 		std::string						getPath(const std::string &path) const;
+		const std::string				getReply(unsigned short reply) const;
 
 		// Setters
 
 		void							setName(const std::string &name);
+		void							setRoot(const std::string &root);
+		void							setReplyBody(unsigned short reply, const std::string &bodyPath, const std::string &type = "text");
+		void							setReplyBodyFromFile(unsigned short reply, const std::string &bodyPath);
 
 		// Other
 		

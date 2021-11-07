@@ -1,7 +1,7 @@
 #include "Location.hpp"
 
 Location::Location() :
-_autoindex(0), _name("/"), _root("/"), _errorPages(), _bodySize(1024 * 1024), _index("index.html")
+_autoindex(0), _name("/"), _root(""), _errorPages(), _bodySize(1024 * 1024), _index("index.html")
 {}
 
 Location::~Location()
@@ -27,7 +27,7 @@ const std::string				&Location::getRoot() const
 	return _root;
 }
 
-ReplyPages				&Location::getErrorPages()
+const ReplyPages				&Location::getErrorPages() const
 {
 	return _errorPages;
 }
@@ -54,6 +54,26 @@ std::string						Location::getPath(const std::string &path) const
 void							Location::setName(const std::string &name)
 {
 	_name = name;
+}
+
+void							Location::setRoot(const std::string &root)
+{
+	_root = root;
+}
+
+void							Location::setReplyBody(unsigned short reply, const std::string &bodyPath, const std::string &type)
+{
+	_errorPages.setReplyBody(reply, bodyPath, type);
+}
+
+void							Location::setReplyBodyFromFile(unsigned short reply, const std::string &bodyPath)
+{
+	_errorPages.setReplyBodyFromFile(reply, bodyPath);
+}
+
+const std::string				Location::getReply(unsigned short reply) const
+{
+	return _errorPages.getReply(reply);
 }
 
 bool	Location::parseLocation(const std::vector<std::string> &splitedLine)

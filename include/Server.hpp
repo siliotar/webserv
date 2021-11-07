@@ -10,7 +10,7 @@ class ServerConfig;
 class Server
 {
 	private:
-		ServerConfig		*_config;
+		ServerConfig			*_config;
 		std::set<int>			_ports;
 
 		Server();
@@ -23,5 +23,5 @@ class Server
 		bool					isListen(unsigned int port) const;
 		bool					containsName(const std::string &name);
 		const std::set<int>		&getPorts() const;
-		Location			*getLocation(const std::string &path);
+		Location				*getLocation(const std::string &path);
 };

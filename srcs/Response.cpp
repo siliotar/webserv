@@ -1,20 +1,21 @@
 #include "Response.hpp"
-#include "Color.hpp"
 
 
 Response::Response(const std::string & request, Server * server) : \
-Request(request), _server(server) , _directoryListingDefult(readFile("defaultPages/directory_listing.html")) {
+Request(request), _directoryListingDefult(readFile("defaultPages/directory_listing.html")), _server(server) {
 	try {
 
 		_locationConfig = _server->getLocation(_path);
+		_oldPath = _path;
+		_path = _locationConfig->getPath(_path);
 		struct stat buff;
 		stat((_path).c_str(), &buff);
 		if (_locationConfig->isAutoindex() && S_ISDIR(buff.st_mode)) {
 			_locationConfig = _server->getLocation(_path);
-			_locationConfig->getErrorPages().setReplyBody(200,  autoIndexOn(), "text/html");
+			_locationConfig->setReplyBody(200,  autoIndexOn(), "text/html");
 		}
 		else
-			_locationConfig->getErrorPages().setReplyBodyFromFile(200,  _path);
+			_locationConfig->setReplyBodyFromFile(200,  _path);
 	}
 	catch (const char * str) { 
 		std::cout << "kek" << std::endl;
@@ -27,10 +28,10 @@ std::string Response::autoIndexOn( void ) {
 		return (""); //                									????????????
 	dirent * dp;
 	std::string str = _directoryListingDefult;
-	str.replace(str.find("FILE_DIR"), strlen("FILE_DIR"), _path);
-	str.replace(str.find("FILE_DIR"), strlen("FILE_DIR"), _path);
+	str.replace(str.find("FILE_DIR"), strlen("FILE_DIR"), _oldPath);
+	str.replace(str.find("FILE_DIR"), strlen("FILE_DIR"), _oldPath);
 	int index = str.find("<hr>") + 4;
-	if (_path != "/") {
+	if (_oldPath != "/") {
 		std::string tmp = "\n<pre><a href=\"../\">../</a></pre>\n";
 		str.insert(index, tmp);
 		index += tmp.size();
@@ -64,13 +65,13 @@ std::string Response::autoIndexOff( void ) {
 }
 
 void Response::acceptRanges(const std::string & str) {
-
+	(void)str;
 }
 void Response::age(const std::string & str) {
-
+	(void)str;
 }
 void Response::alternates(const std::string & str) {
-
+	(void)str;
 }
 void Response::contentDisposition () {
 
@@ -95,7 +96,7 @@ void Response::vary() {
 }
 
 std::string Response::getResponse ( void ) {
-	return (_locationConfig->getErrorPages().getReply(200)); // 200 or some
+	return (_locationConfig->getReply(200)); // 200 or some
 }
 
 

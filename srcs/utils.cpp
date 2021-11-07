@@ -1,5 +1,5 @@
 #include "utils.hpp"
-#include <iostream>
+
 void	trim(std::string &str, const std::string &delim)
 {
 	str.erase(str.find_last_not_of(delim) + 1);

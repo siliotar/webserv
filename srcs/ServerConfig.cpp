@@ -1,5 +1,5 @@
 #include "ServerConfig.hpp"
-#include <iostream>
+
 ServerConfig::ServerConfig(const std::string &config)
 {
 	std::stringstream			ss(config);
@@ -51,6 +51,12 @@ ServerConfig::ServerConfig(const std::string &config)
 		if (!parseLocation(splitedLine))
 			throw "Wrong config!";
 	}
+	if (_root == "")
+		_root = "/";
+	std::map<std::string, Location *>::iterator		it = _locations.begin();
+	for (; it != _locations.end(); ++it)
+		if (it->second->getRoot() == "")
+			it->second->setRoot(_root);
 }
 
 ServerConfig::~ServerConfig()

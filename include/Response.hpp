@@ -9,13 +9,15 @@
 #include <sys/stat.h>
 #include <iomanip>
 #include "Server.hpp"
+#include "Color.hpp"
 
 class Response : public Request {
 
 	private:
 		const std::string 	_directoryListingDefult;
 		std::string			_response;
-		Location		*_locationConfig;
+		std::string			_oldPath;
+		Location			*_locationConfig;
 		Server				*_server;
 		
 	public:
