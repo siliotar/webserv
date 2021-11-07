@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <map>
 #include <string>
 
@@ -11,8 +12,8 @@ class MIME
 		MIME	&operator=(const MIME& other);
 		virtual ~MIME();
 	public:
-		static const std::map<std::string, std::string>	_types;
-		static const std::map<std::string, std::string>	createMap();
+		static const std::map<std::string, std::vector<std::string> >	_types;
+		static const std::map<std::string, std::vector<std::string> >	createMap();
 
 		static const std::string	&getType(const std::string &extension);
 };

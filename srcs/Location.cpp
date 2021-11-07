@@ -1,7 +1,7 @@
 #include "Location.hpp"
 
 Location::Location() :
-_autoindex(0), _root("/"), _errorPages(), _bodySize(1024 * 1024), _index("index.html")
+_autoindex(0), _name("/"), _root("/"), _errorPages(), _bodySize(1024 * 1024), _index("index.html")
 {}
 
 Location::~Location()
@@ -15,6 +15,11 @@ bool							Location::isAutoindex() const
 size_t							Location::getBodySize() const
 {
 	return _bodySize;
+}
+
+const std::string				&Location::getName() const
+{
+	return _name;
 }
 
 const std::string				&Location::getRoot() const
@@ -35,6 +40,20 @@ const std::vector<std::string>	&Location::getAllowMethods() const
 const std::string				&Location::getIndex() const
 {
 	return _index;
+}
+
+std::string						Location::getPath(const std::string &path) const
+{
+	size_t	pos;
+	if ((pos = path.find(_name)) == std::string::npos)
+		return path;
+	std::string	res = path;
+	return res.replace(pos, _name.size(), _root);
+}
+
+void							Location::setName(const std::string &name)
+{
+	_name = name;
 }
 
 bool	Location::parseLocation(const std::vector<std::string> &splitedLine)

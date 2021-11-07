@@ -43,6 +43,7 @@ ServerConfig::ServerConfig(const std::string &config)
 				throw "Wrong config!";
 			std::string	loc = splitedLine[1];
 			_locations[loc] = new Location();
+			_locations[loc]->setName(loc);
 			while (std::getline(ss, line) && line != "}")
 				_locations[loc]->parseLocation(split(line));
 			continue ;
