@@ -41,7 +41,9 @@ class Request {
 		std::map<std::string, std::string> _param;
 
 		void operationInit( void );
-		
+
+		void parsPath( void );
+ 
 		void accept(const std::string & str);
 
 		void AcceptEncoding(const std::string & str);

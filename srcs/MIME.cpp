@@ -76,6 +76,7 @@ const std::map<std::string, std::string>	MIME::createMap()
 	m["gzip"] = "application/x-gzip";
 	m["gzip"] = "multipart/x-gzip";
 	m["h"] = "text/plain";
+	m["hpp"] = "text/plain";
 	m["h"] = "text/x-h";
 	m["hlp"] = "application/hlp";
 	m["hlp"] = "application/x-helpfile";

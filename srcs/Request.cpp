@@ -29,6 +29,7 @@ Request::Request(const std::string & content)
 	std::getline(ss, str);
 	std::istringstream s(str);
 	s >> str >> _path >> _version;
+	parsPath();
 	_location = _path; // take from config                                       dodopizza
 	if (_version != VALID_VERSION)
 		throw ("Invald version!"); // ???????????????????
@@ -48,6 +49,13 @@ Request::Request(const std::string & content)
 	}       
 }
 
+void Request::parsPath() {
+	size_t a;
+	while ((a = _path.find("%20")) != std::string::npos)
+	{
+		_path.replace(a, 3, " ");
+	}
+}
 // what do this information??
 void Request::accept(const std::string & str) {
 

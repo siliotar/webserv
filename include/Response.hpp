@@ -14,9 +14,12 @@ class Response : public Request {
 
 	private:
 		const std::string 	_directoryListingDefult;
-		std::string			_response;		
+		std::string			_response;
+		Location		*_locationConfig;
+		Server				*_server;
+		
 	public:
-		Response(const std::string & request,const Server & _servers);
+		Response(const std::string & request, Server * server);
 		// If autoindex on, open directory in html 
 		std::string autoIndexOn( void );
 
