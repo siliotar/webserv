@@ -29,7 +29,7 @@ class Location
 		bool							isAutoindex() const;
 		const std::string				&getName() const;
 		const std::string				&getRoot() const;
-		const ReplyPages				&getErrorPages() const;
+		ReplyPages						&getErrorPages();
 		size_t							getBodySize() const;
 		const std::vector<std::string>	&getAllowMethods() const;
 		const std::string				&getIndex() const;

@@ -10,18 +10,18 @@ class ServerConfig;
 class Server
 {
 	private:
-		const ServerConfig		*_config;
+		ServerConfig		*_config;
 		std::set<int>			_ports;
 
 		Server();
 		Server(const Server& copy);
 		Server	&operator=(const Server& other);
 	public:
-		Server(const ServerConfig &config);
+		Server(ServerConfig &config);
 		~Server();
 
 		bool					isListen(unsigned int port) const;
 		bool					containsName(const std::string &name);
 		const std::set<int>		&getPorts() const;
-		const Location			*getLocation(const std::string &path) const;
+		Location			*getLocation(const std::string &path);
 };

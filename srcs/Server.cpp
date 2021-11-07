@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-Server::Server(const ServerConfig &config) :
+Server::Server(ServerConfig &config) :
 _config(&config)
 {
 	for (size_t i = 0; i < _config->getListens().size(); i++)
@@ -30,10 +30,10 @@ const std::set<int>		&Server::getPorts() const
 	return _ports;
 }
 
-const Location		*Server::getLocation(const std::string &path) const
+Location		*Server::getLocation(const std::string &path)
 {
 	size_t	maxSize = 0;
-	const Location	*res = _config;
+	Location	*res = _config;
 	std::map<std::string, Location *>::const_iterator	it = _config->getLocations().begin();
 	for (; it != _config->getLocations().end(); ++it)
 	{

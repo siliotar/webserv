@@ -1,22 +1,37 @@
 #include "Response.hpp"
+#include "Color.hpp"
 
 
-Response::Response(const std::string & request, const Server & _servers) : \
-Request(request), _directoryListingDefult(readFile("defaultPages/directory_listing.html")) {
+Response::Response(const std::string & request, Server * server) : \
+Request(request), _server(server) , _directoryListingDefult(readFile("defaultPages/directory_listing.html")) {
+	try {
 
+		_locationConfig = _server->getLocation(_path);
+		struct stat buff;
+		stat((_path).c_str(), &buff);
+		if (_locationConfig->isAutoindex() && S_ISDIR(buff.st_mode)) {
+			_locationConfig = _server->getLocation(_path);
+			_locationConfig->getErrorPages().setReplyBody(200,  autoIndexOn(), "text/html");
+		}
+		else
+			_locationConfig->getErrorPages().setReplyBodyFromFile(200,  _path);
+	}
+	catch (const char * str) { 
+		std::cout << "kek" << std::endl;
+	}
 }
 
 std::string Response::autoIndexOn( void ) {
-	DIR * dirp = opendir(_location.c_str());
+	DIR * dirp = opendir(_path.c_str());
 	if (dirp == 0)
-		throw ("400"); //                									????????????
+		return (""); //                									????????????
 	dirent * dp;
 	std::string str = _directoryListingDefult;
-	str.replace(str.find("FILE_DIR"), strlen("FILE_DIR"), _location);
-	str.replace(str.find("FILE_DIR"), strlen("FILE_DIR"), _location);
+	str.replace(str.find("FILE_DIR"), strlen("FILE_DIR"), _path);
+	str.replace(str.find("FILE_DIR"), strlen("FILE_DIR"), _path);
 	int index = str.find("<hr>") + 4;
-	if (_location != "/") {
-		std::string tmp = "\n<pre><a href=\"../\">..</a></pre>\n";
+	if (_path != "/") {
+		std::string tmp = "\n<pre><a href=\"../\">../</a></pre>\n";
 		str.insert(index, tmp);
 		index += tmp.size();
 	}
@@ -24,13 +39,17 @@ std::string Response::autoIndexOn( void ) {
 		
 		std::stringstream ss;
 		struct stat buff;
-		stat(dp->d_name, &buff);
+		stat((_path + dp->d_name).c_str(), &buff);
 		if (std::string(dp->d_name) != "." && std::string(dp->d_name) != "..") {
-			ss << "<pre><a href=\"" << dp->d_name <<  "\">" << dp->d_name;
+			 
 			if(S_ISDIR(buff.st_mode))
-				ss << "/" << std::left << std::setw(51 - std::string(dp->d_name).size()) << "</a>" << std::left << std::setw(40) << "-";
+				ss << "<pre><a href=\"" << dp->d_name <<  "/\">" << dp->d_name \
+				<< "/" << std::left << std::setw(51 - std::string(dp->d_name).size()) \
+				<< "</a>" << std::left << std::setw(40) << "-";
 			else
-				ss << std::left << std::setw(52 - std::string(dp->d_name).size()) << "</a>" << std::left << std::setw(40) << buff.st_size;
+				ss << "<pre><a href=\"" << dp->d_name <<  "\">" << dp->d_name \
+				<< std::left << std::setw(52 - std::string(dp->d_name).size()) \
+				<< "</a>" << std::left << std::setw(40) << buff.st_size;
 			ss  << asctime(gmtime(&(buff.st_ctime))) << "</pre>";
 			str.insert(index, ss.str());
 			index += ss.str().size();
@@ -41,10 +60,7 @@ std::string Response::autoIndexOn( void ) {
 }
 
 std::string Response::autoIndexOff( void ) {
-	DIR * dirp = opendir(_location.c_str());
-	if (dirp == 0)
-		throw ("400"); //                									????????????
-	return ("");
+	return (readFile(_path));
 }
 
 void Response::acceptRanges(const std::string & str) {
@@ -79,7 +95,7 @@ void Response::vary() {
 }
 
 std::string Response::getResponse ( void ) {
-	return (autoIndexOn());
+	return (_locationConfig->getErrorPages().getReply(200)); // 200 or some
 }
 
 

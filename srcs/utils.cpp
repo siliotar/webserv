@@ -1,5 +1,5 @@
 #include "utils.hpp"
-
+#include <iostream>
 void	trim(std::string &str, const std::string &delim)
 {
 	str.erase(str.find_last_not_of(delim) + 1);
@@ -8,14 +8,13 @@ void	trim(std::string &str, const std::string &delim)
 
 std::string	readFile(const std::string &path)
 {
-	std::ifstream		fin(path.c_str());
-	std::string			line;
+	std::ifstream		fin(path.c_str(), std::ios::binary);
 	std::stringstream	ss;
 
 	if (!fin.is_open())
 		throw "Failed to open file!";
-	while (std::getline(fin, line))
-		ss << line << std::endl;
+	ss << fin.rdbuf();
+    fin.close();
 	return (ss.str());
 }
 

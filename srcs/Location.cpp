@@ -27,7 +27,7 @@ const std::string				&Location::getRoot() const
 	return _root;
 }
 
-const ReplyPages				&Location::getErrorPages() const
+ReplyPages				&Location::getErrorPages()
 {
 	return _errorPages;
 }
