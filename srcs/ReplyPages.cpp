@@ -114,7 +114,14 @@ void				ReplyPages::setReplyBodyFromFile(unsigned short reply, const std::string
 	if (bodyPath.find_last_of('.') == std::string::npos)
 		throw "Unsupported file!";
 	_replyBodys[reply].body = readFile(bodyPath);
-	_replyBodys[reply].type = MIME::getType(bodyPath.substr(bodyPath.find_last_of('.') + 1));
+	try
+	{
+		_replyBodys[reply].type = MIME::getType(bodyPath.substr(bodyPath.find_last_of('.') + 1));
+	}
+	catch(const char *e)
+	{
+		_replyBodys[reply].type = "text";
+	}
 }
 
 void				ReplyPages::setReplyBody(unsigned short reply, const std::string &body, const std::string &type)
