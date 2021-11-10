@@ -4,21 +4,16 @@
 Response::Response(const std::string & request, Server * server) : \
 Request(request), _directoryListingDefult(readFile("defaultPages/directory_listing.html")), _server(server) {
 	try {
-
-		_locationConfig = _server->getLocation(_path);
-		_oldPath = _path;
-		_path = _locationConfig->getPath(_path);
-		struct stat buff;
-		stat((_path).c_str(), &buff);
-		if (_locationConfig->isAutoindex() && S_ISDIR(buff.st_mode)) {
-			_locationConfig = _server->getLocation(_path);
-			_locationConfig->setReplyBody(200,  autoIndexOn(), "text/html");
-		}
-		else
-			_locationConfig->setReplyBodyFromFile(200,  _path);
+		if (_response == "GET")
+			responseGet();
+		else if (_response == "POST")
+			responsePost();
 	}
 	catch (const char * str) { 
-		std::cout << "kek" << std::endl;
+		std::cout << str << std::endl;
+	}
+	catch (const int num_error) { 
+		std::cout << num_error << std::endl;
 	}
 }
 
@@ -63,6 +58,42 @@ std::string Response::autoIndexOn( void ) {
 std::string Response::autoIndexOff( void ) {
 	return (readFile(_path));
 }
+
+
+void Response::responseGet() {
+
+	_locationConfig = _server->getLocation(_path);
+	_oldPath = _path;
+	_path = _locationConfig->getPath(_path);
+	struct stat buff;
+	stat((_path).c_str(), &buff);
+	if (_locationConfig->isAutoindex() && S_ISDIR(buff.st_mode)) {
+		_locationConfig = _server->getLocation(_path);
+		_locationConfig->setReplyBody(200,  autoIndexOn(), "text/html");
+	}
+	else
+		_locationConfig->setReplyBodyFromFile(200,  _path);
+}
+
+std::string Response::postDone ( void ) {
+	std::string str (readFile(_locationConfig->getPath("/index.html")));
+	int a = str.find("<form action=\"\" method=\"post\">");
+	int b = str.find_last_of("<input type=\"submit\" value=\"Save\"></form>");
+	str.erase(a, b);
+	str.insert(a, "User: " + _dataBaseMap["name"] );
+	return (str);
+
+
+}
+void Response::responsePost() {
+
+	_locationConfig->setReplyBody(200,  postDone(), "text/html");
+}
+
+void Response::responseDelete() {
+	
+}
+
 
 void Response::acceptRanges(const std::string & str) {
 	(void)str;

@@ -34,9 +34,12 @@ class Request {
 		std::vector<std::pair<std::string, double> > _tE;
 		std::string _UserAgent;
 
+		std::map<std::string, std::string> _dataBaseMap;
+
+		std::string _response;
 		std::string _path;
 		std::string _location;
-		std::map<std::string, void (Request::*)(const std::string &)> mapFoo;
+		std::map<std::string, void (Request::*)(const std::string &)> _mapFoo;
 		std::string _version;
 		std::map<std::string, std::string> _param;
 
@@ -45,6 +48,8 @@ class Request {
 		void parsPath( void );
  
 		void accept(const std::string & str);
+
+		void parsResponse( std::istringstream & ss, std::string & str );
 
 		void AcceptEncoding(const std::string & str);
 

@@ -1,52 +1,70 @@
 #include "Request.hpp"
-
+#include "Color.hpp"
 void Request::operationInit( void )
 {
-	mapFoo["Accept-Encoding:"] = &Request::AcceptEncoding;
-	mapFoo["Accept:"] = &Request::accept;
-	mapFoo["Accept-Language:"] = &Request::AcceptLanguage;
-	mapFoo["Authorization:"] = &Request::Authorization;
-	mapFoo["Cache-Control:"] = &Request::Conection;
-	mapFoo["Data:"] = &Request::Data;
-	mapFoo["From:"] = &Request::From;
-	mapFoo["Host:"] = &Request::Host;
-	mapFoo["If-Match:"] = &Request::IfMatch;
-	mapFoo["If-Modified-Since:"] = &Request::IfModifiedSince;
-	mapFoo["If-None-Match:"] = &Request::IfNoneMatch;
-	mapFoo["If-Range:"] = &Request::IfRange;
-	mapFoo["If-Unmodified-Since:"] = &Request::IfUnmodifiedSince;
-	mapFoo["Referer:"] = &Request::Referer;
-	mapFoo["UserAgent:"] = &Request::UserAgent;
+	_mapFoo["Accept-Encoding:"] = &Request::AcceptEncoding;
+	_mapFoo["Accept:"] = &Request::accept;
+	_mapFoo["Accept-Language:"] = &Request::AcceptLanguage;
+	_mapFoo["Authorization:"] = &Request::Authorization;
+	_mapFoo["Cache-Control:"] = &Request::Conection;
+	_mapFoo["Data:"] = &Request::Data;
+	_mapFoo["From:"] = &Request::From;
+	_mapFoo["Host:"] = &Request::Host;
+	_mapFoo["If-Match:"] = &Request::IfMatch;
+	_mapFoo["If-Modified-Since:"] = &Request::IfModifiedSince;
+	_mapFoo["If-None-Match:"] = &Request::IfNoneMatch;
+	_mapFoo["If-Range:"] = &Request::IfRange;
+	_mapFoo["If-Unmodified-Since:"] = &Request::IfUnmodifiedSince;
+	_mapFoo["Referer:"] = &Request::Referer;
+	_mapFoo["UserAgent:"] = &Request::UserAgent;
 }
 
+
+void Request::parsResponse(std::istringstream & ss, std::string & str)
+{
+
+	std::stringstream s;
+	_location = _path;
+	if (_version != VALID_VERSION)
+		throw (400);
+	while (ss) {
+		std::getline(ss, str);
+		if (str == "\r\n" || str == "\n" || str == "\r")
+			break;
+		s.clear();
+		s.str(str);
+		std::string key;
+		s >> key;
+		std::string value;
+		std::getline(s, value);
+		
+		std::map<std::string, void (Request::*)(const std::string &)>::iterator it;
+		it = _mapFoo.find(key);
+		std::cout << RED << key << RESET << std::endl;
+		if (it != _mapFoo.end())
+			(this->*(it->second))(value);
+	}
+	if (_response == "POST")
+		while (ss)	{
+			std::getline (ss, str);
+			if (str != "\n")
+			{
+				int k = str.find("=");
+				_dataBaseMap[str.substr(0, k)] = str.substr(k + 1);
+			}
+	}
+}
 
 Request::Request(const std::string & content)
 {
 	std::string str;
-	std::istringstream ss(content);
-	
+	std::istringstream ss(content);	
 	operationInit();
 	std::getline(ss, str);
 	std::istringstream s(str);
-	s >> str >> _path >> _version;
+	s >> _response >> _path >> _version;
 	parsPath();
-	_location = _path; // take from config                                       dodopizza
-	if (_version != VALID_VERSION)
-		throw ("Invald version!"); // ???????????????????
-	while (ss)
-	{
-		std::getline(ss, str);
-		if (str != "")
-		{
-			s.clear();
-			s.str(str);
-			std::string key;
-			s >> key;
-			std::string value;
-			std::getline(s, value);
-			_param.insert(make_pair(key, value));
-		}
-	}       
+	parsResponse(ss, str);
 }
 
 void Request::parsPath() {
@@ -62,11 +80,8 @@ void Request::accept(const std::string & str) {
 	std::string tmp; 
 	tmp += std::string(NOT_DISPLAYED) + "():<>?@[\\]{}";
 	if (str.find_first_of(tmp) != std::string::npos)
-		throw("406"); // ???????????????????
+		throw(406); // ???????????????????
 	//Use MIME pars not valid parametr
-	//Use MIME
-	//Use MIME
-	//Use MIME
 	//Use MIME
 	//Use MIME
 	//Use MIME
@@ -78,6 +93,10 @@ void Request::AcceptEncoding(const std::string & str) {
 	std::vector<std::pair<std::string, double> > tmp;
 	tmp = value_prec(str);
 	_acceptEncoding.insert(_acceptEncoding.end(), tmp.begin(), tmp.end());
+	for (int i = 0; i < _acceptEncoding.size(); i++)
+	{
+		std::cout << "|" << _acceptEncoding[i].first << " " << _acceptEncoding[i].second << "|" << std::endl;
+	}
 	std::set<std::string> correct_str;
 	correct_str.insert("gzip");
 	correct_str.insert("compress");
@@ -89,7 +108,7 @@ void Request::AcceptEncoding(const std::string & str) {
 	{
 		std::set<std::string>::iterator it = correct_str.find(_acceptEncoding[i].first);
 		if (it == correct_str.end())
-			throw("406"); // ???????????????????
+			throw("Encoding"); // ???????????????????
 	}
 }
 
@@ -97,7 +116,7 @@ void Request::AcceptLanguage(const std::string & str) {
 	std::string tmp; 
 	tmp += std::string(A_Z) + std::string(a_z) + "*,-.;=";
 	if (str.find_first_not_of(tmp) != std::string::npos)
-		throw("406"); // ???????????????????
+		throw("400::lange"); // ???????????????????
 	_acceptLanguage = value_prec(str); 
 }
 
@@ -110,7 +129,7 @@ void Request::Authorization(const std::string & str) {
 		
 	}
 	else {
-		throw ("406");  // ???????????????????
+		throw (406);  // ???????????????????
 	}
 	// ?
 	// ?
@@ -127,10 +146,10 @@ void Request::CacheControl(const std::string & str)
 void Request::Conection(const std::string & str)
 {
 	if (str == "close") {
-		throw ("vam_ban"); // ???????????????????
+		throw ("Conection::400"); // ???????????????????
 	}
 	else if (str != "keep-alive") {
-		throw("406"); // ?????????????????????
+		// throw("Connection::400"); // ?????????????????????
 	}
 }
 
@@ -147,7 +166,7 @@ void Request::From(const std::string & str) {
 	std::string tmp;
 	ss >> tmp;
 	if (ss) {
-		throw ("406"); // ??????????????
+		throw ("406::form"); // ??????????????
 	}
 	_mail = tmp;
 }
