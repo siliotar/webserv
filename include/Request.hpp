@@ -9,7 +9,8 @@
 #define VALID_VERSION "HTTP/1.1"
 #define A_Z "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #define a_z "abcdefghijklmnopqrstuvwxyz"
-#define NOT_DISPLAYED "\0\1\2\3\4\5\6\7\10\12\13\14\15\16\17\20\21\22\23\24\25\26\27\30\31\32\33\34\35\36\37\127"
+#define Num "0123456789"
+#define NOT_DISPLAYED "\0\1\2\3\4\5\6\7\10\12\13\14\16\17\20\21\22\23\24\25\26\27\30\31\32\33\34\35\36\37\127"
 
 
 
@@ -34,9 +35,12 @@ class Request {
 		std::vector<std::pair<std::string, double> > _tE;
 		std::string _UserAgent;
 
+		std::map<std::string, std::string> _dataBaseMap;
+
+		std::string _response;
 		std::string _path;
 		std::string _location;
-		std::map<std::string, void (Request::*)(const std::string &)> mapFoo;
+		std::map<std::string, void (Request::*)(const std::string &)> _mapFoo;
 		std::string _version;
 		std::map<std::string, std::string> _param;
 
@@ -45,6 +49,8 @@ class Request {
 		void parsPath( void );
  
 		void accept(const std::string & str);
+
+		void parsResponse( std::istringstream & ss, std::string & str );
 
 		void AcceptEncoding(const std::string & str);
 
