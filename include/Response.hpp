@@ -15,7 +15,6 @@ class Response : public Request {
 
 	private:
 		const std::string 	_directoryListingDefult;
-		std::string			_response;
 		std::string			_oldPath;
 		Location			*_locationConfig;
 		Server				*_server;
@@ -26,6 +25,14 @@ class Response : public Request {
 		std::string autoIndexOn( void );
 
 		std::string autoIndexOff( void );
+
+		std::string postDone( void );
+		
+		void responsePost( void );
+
+		void responseGet ( void );
+		
+		void responseDelete( void );
 		
 		void acceptRanges(const std::string & str);
 

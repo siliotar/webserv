@@ -30,20 +30,28 @@ std::vector<std::string>	split(std::string str, const std::string &delim)
 	}
 	return ret;
 }
-
+#include "Color.hpp"
+#include <iostream>
 std::vector<std::pair<std::string, double> > value_prec(const std::string & str)
 {
     std::vector<std::pair<std::string, double> > result;
-
-    std::vector<std::string> vec = split(str, ",");
+    std::vector<std::string> vec = split(str, ", ");
+    
     for (size_t i = 0; i < vec.size(); i++)
     {
         if (vec[i].find(';') == std::string::npos)
+        {
+            if (vec[i][vec[i].size() - 1] == '\r')
+                vec[i] = vec[i].substr(0, vec[i].size() - 1);
             result.push_back(make_pair(vec[i], 1));
+        }
         else
         {
+
+            if (vec[i][vec[i].size() - 1] == '\r')
+                vec[i] = vec[i].substr(0, vec[i].size() - 2);
             std::vector<std::string> q = split(vec[i], ":=");
-            result.push_back(make_pair(*q.begin(), atof((*(--q.end())).c_str())));
+            result.push_back(make_pair(*q.begin(), atof((*(q.rbegin())).c_str())));
         }
     }
     return result;
@@ -52,7 +60,7 @@ std::vector<std::pair<std::string, double> > value_prec(const std::string & str)
 bool parsData(const std::vector<std::string> & data)
 {
     if (data.size() != 8)
-    if (data[0] != "Mon," || data[0] != "Tue," || data[0] != "Wed," || data[0] != "Thu," || \
+    if (data[0] != "Mon," || data[0] != "Thu," || data[0] != "Wed," || data[0] != "Thu," || \
     data[0] != "Fri," || data[0] != "Sat," || data[0] != "Sun,")
         return false;
     if (atoi(data[1].c_str()) > 31 || atoi(data[1].c_str()) < 1)
@@ -69,7 +77,7 @@ bool parsData(const std::vector<std::string> & data)
         return false;
     if (atoi(data[6].c_str()) > 59 || atoi(data[6].c_str()) < 0)
         return false;
-    if (data[7] != "GMT")
+    if (data[7] != "GMT\r" || data[7] != "GMT")
         return false;
     return true;
 }
