@@ -91,6 +91,9 @@ const std::string	ReplyPages::getReply(unsigned short reply) const
 	}
 	catch(const std::exception& e)
 	{}
+	std::map<std::string, std::string>::const_iterator	it = _headers.begin();
+	for (; it != _headers.end(); ++it)
+		ss << it->first << ": " << it->second << std::endl;
 	ss << std::endl;
 	try
 	{
@@ -136,4 +139,14 @@ void				ReplyPages::setReplyBody(unsigned short reply, const std::string &body, 
 	}
 	_replyBodys[reply].body = body;
 	_replyBodys[reply].type = type;
+}
+
+void				ReplyPages::setHeader(const std::string &key, const std::string &value)
+{
+	_headers[key] = value;
+}
+
+void				ReplyPages::clearHeaders()
+{
+	_headers.clear();
 }
