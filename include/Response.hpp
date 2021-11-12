@@ -14,9 +14,10 @@
 class Response : public Request {
 
 	private:
-		const std::string 	_directoryListingDefult;
-		std::string			_oldPath;
-		Server				*_server;
+		bool						_conectionClose;
+		const std::string 			_directoryListingDefult;
+		Server						*_server;
+		std::string					_oldPath;
 		
 	public:
 		Response(const std::string & request, Server * server);
@@ -28,6 +29,8 @@ class Response : public Request {
 		std::string postDone( void );
 		
 		void responsePost( void );
+
+		bool getConectionClose( void );
 
 		void responseGet ( void );
 		

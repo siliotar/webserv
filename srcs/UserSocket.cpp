@@ -25,7 +25,7 @@ std::string	UserSocket::popMessage()
 	_msgQueue.pop();
 	return ret;
 }
-
+#include <iostream>
 int		UserSocket::readMessage()
 {
 	std::stringstream	ss;

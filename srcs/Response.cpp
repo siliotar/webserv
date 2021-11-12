@@ -1,23 +1,26 @@
 #include "Response.hpp"
 
 
-Response::Response(const std::string & request, Server * server) : \
-Request(request), _directoryListingDefult(readFile("defaultPages/directory_listing.html")), _server(server) {
+Response::Response(const std::string & request, Server * server) : Request(request), \
+_conectionClose(false), _directoryListingDefult(readFile("defaultPages/directory_listing.html")), _server(server) {
 	_locationConfig = _server->getLocation(_path);
+	_locationConfig->clearHeaders();
 	_oldPath = _path;
 	_path = _locationConfig->getPath(_path);
 	if (_errorFlag == 200)
 	{
-		if (_response == "GET"){
-			try {
-				responseGet();
-			}
-			catch (const char *str) {
-				_errorFlag = atoi(str);
-			}
+		try {
+			const std::vector<std::string> tmp_vec = _locationConfig->getAllowMethods();
+			if (std::find(tmp_vec.begin(), tmp_vec.end(), _response) == tmp_vec.end())
+				throw("405:response");
+			if (_response == "GET")
+				responseGet();	
+			else if (_response == "POST")
+				responsePost();
 		}
-		else if (_response == "POST")
-			responsePost();
+		catch (const char *str) {
+			_errorFlag = atoi(str);
+		}
 	}
 }
 
@@ -127,7 +130,16 @@ void Response::vary() {
 
 }
 
-std::string Response::getResponse ( void ) {
+bool	Response::getConectionClose( void ) {
+	return _conectionClose;
+}
+
+std::string Response::getResponse( void ) {
+	if (_errorFlag == 400)
+	{
+		_conectionClose = true;
+		_locationConfig->setHeader("Connection", "close");
+	}
 	return (_locationConfig->getReply(_errorFlag));
 }
 

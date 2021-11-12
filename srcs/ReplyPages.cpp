@@ -48,6 +48,7 @@ ReplyPages::ReplyPages()
 	_names[505] = "HTTP Version Not Supported";
 	_replyBodys[400].body = getDefaultBody(defaultBody, "400 Bad Request");
 	_replyBodys[404].body = getDefaultBody(defaultBody, "404 Not Found");
+	_replyBodys[405].body = getDefaultBody(defaultBody, "405 Method Not Allowed");
 	_replyBodys[406].body = getDefaultBody(defaultBody, "406 Not Acceptable");
 	_replyBodys[500].body = getDefaultBody(defaultBody, "500 Internal Server Error");
 	_replyBodys[501].body = getDefaultBody(defaultBody, "501 Not Implemented");
@@ -83,7 +84,8 @@ const std::string	ReplyPages::getReply(unsigned short reply) const
 	}
 	catch(const std::exception& e)
 	{
-		throw "Wrong reply!";
+		
+		throw std::to_string(reply).c_str();
 	}
 	try
 	{

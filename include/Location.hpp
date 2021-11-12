@@ -42,7 +42,8 @@ class Location
 		void							setRoot(const std::string &root);
 		void							setReplyBody(unsigned short reply, const std::string &bodyPath, const std::string &type = "text");
 		void							setReplyBodyFromFile(unsigned short reply, const std::string &bodyPath);
-
+		void							setHeader(const std::string &key, const std::string &value);
+		void							clearHeaders();
 		// Other
 		
 		bool	parseLocation(const std::vector<std::string> &splitedLine);

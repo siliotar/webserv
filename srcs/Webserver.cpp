@@ -31,7 +31,7 @@ Server	*Webserver::defineServer(const std::string &msg, int port)
 {
 	size_t	pos;
 	if ((pos = msg.find("Host: ")) == std::string::npos)
-		return 0;
+		return _servers[0];
 	std::istringstream	ss(msg.substr(pos));
 	std::string		host;
 	ss >> host >> host;
@@ -76,11 +76,14 @@ void	Webserver::run()
 							std::string	msg = user->popMessage();
 							std::cout << GREEN <<  msg << RESET << std::endl;
 							Server	*s = defineServer(msg, _sockets[i].socket->getPort());
-							if (!s) // 400
-								continue ;
 							Response response_user(msg, s);
 							std::cout << ORANGE << response_user.getResponse() << RESET << std::endl << std::endl << std::endl;
 							send(user->getSockFd(), response_user.getResponse().c_str(), response_user.getResponse().size(), 0);
+							if (response_user.getConectionClose()) {
+								_sockets.remove(i);
+								--i;
+								break ;
+							}
 						}
 					}
 					catch (const char *e)

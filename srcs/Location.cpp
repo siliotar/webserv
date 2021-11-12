@@ -150,3 +150,13 @@ bool	Location::parseLocation(const std::vector<std::string> &splitedLine)
 	}
 	return false;
 }
+
+void	Location::setHeader(const std::string &key, const std::string &value)
+{
+	_errorPages.setHeader(key, value);
+}
+
+void	Location::clearHeaders()
+{
+	_errorPages.clearHeaders();
+}

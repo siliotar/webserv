@@ -19,6 +19,19 @@ void Request::operationInit( void )
 	_mapFoo["UserAgent:"] = &Request::UserAgent;
 }
 
+void	Request::responseMethod( void )
+{
+	// _methods.push_back("GET");
+	// _methods.push_back("POST");
+	// _methods.push_back("DELETE");
+	_methods.push_back("PUT");
+	_methods.push_back("HEAD");
+	_methods.push_back("CONNECT");
+	_methods.push_back("HEAD");
+	_methods.push_back("OPTIONS");
+	_methods.push_back("PATCH");
+	_methods.push_back("TRACE");
+}
 void Request::parsResponse(std::istringstream & ss, std::string & str)
 {
 
@@ -26,7 +39,7 @@ void Request::parsResponse(std::istringstream & ss, std::string & str)
 	std::stringstream s;
 	_location = _path;
 	if (_version != VALID_VERSION)
-		throw ("400:version");
+		throw ("505:version");
 	while (ss) {
 		std::getline(ss, str);
 		if (str == "\r\n" || str == "\n" || str == "\r")
@@ -58,15 +71,23 @@ void Request::parsResponse(std::istringstream & ss, std::string & str)
 
 Request::Request(const std::string & content) : _errorFlag(200)
 {
+	responseMethod();
 	std::string str;
-	std::istringstream ss(content);	
+	std::istringstream ss(content);
 	operationInit();
 	std::getline(ss, str);
 	std::istringstream s(str);
 	s >> _response >> _path >> _version;
+	
+
 	parsPath();
 	try {
-		parsResponse(ss, str);
+		if (_response == "GET" || _response == "POST" || _response == "DELETE")
+			parsResponse(ss, str);
+		else if (std::find(_methods.begin(), _methods.end(), _response) == _methods.end())
+			throw "400";
+		else
+			throw "406";
 	}
 	catch (const char * error) {
 		_errorFlag = atoi(error);

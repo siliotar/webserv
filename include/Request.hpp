@@ -38,6 +38,8 @@ class Request {
 		
 		Location	*_locationConfig;
 
+		std::vector<std::string> 	_methods;
+
 		std::map<std::string, std::string> _dataBaseMap;
 
 		std::string _response;
@@ -48,6 +50,8 @@ class Request {
 		std::map<std::string, std::string> _param;
 
 		int _errorFlag;
+
+		void responseMethod( void );
 
 		void operationInit( void );
 
