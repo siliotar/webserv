@@ -16,10 +16,7 @@ Config::Config(const char *path)
 	}
 	std::string	config = ss.str();
 	for (std::string tmp = getServer(config); tmp.length() > 0; tmp = getServer(config))
-	{
 		_servers.push_back(new ServerConfig(tmp));
-		// std::cout << tmp << std::endl;
-	}
 }
 
 std::string	Config::getServer(std::string &config)

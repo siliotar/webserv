@@ -16,7 +16,6 @@ class Response : public Request {
 	private:
 		const std::string 	_directoryListingDefult;
 		std::string			_oldPath;
-		Location			*_locationConfig;
 		Server				*_server;
 		
 	public:

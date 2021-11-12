@@ -288,7 +288,7 @@ const std::string	&MIME::getType(const std::string &extension)
 	}
 	catch(const std::exception& e)
 	{
-		throw "Unsupported file extension!";
+		throw "406";
 	}
 }
 

@@ -6,10 +6,19 @@ Request(request), _directoryListingDefult(readFile("defaultPages/directory_listi
 	_locationConfig = _server->getLocation(_path);
 	_oldPath = _path;
 	_path = _locationConfig->getPath(_path);
-	if (_response == "GET")
-		responseGet();
-	else if (_response == "POST")
-		responsePost();
+	if (_errorFlag == 200)
+	{
+		if (_response == "GET"){
+			try {
+				responseGet();
+			}
+			catch (const char *str) {
+				_errorFlag = atoi(str);
+			}
+		}
+		else if (_response == "POST")
+			responsePost();
+	}
 }
 
 std::string Response::autoIndexOn( void ) {
@@ -63,7 +72,7 @@ void Response::responseGet() {
 		_locationConfig->setReplyBody(200,  autoIndexOn(), "text/html");
 	}
 	else
-		_locationConfig->setReplyBodyFromFile(200, _path);
+			_locationConfig->setReplyBodyFromFile(200, _path);
 }
 
 std::string Response::postDone ( void ) {
@@ -119,7 +128,7 @@ void Response::vary() {
 }
 
 std::string Response::getResponse ( void ) {
-	return (_locationConfig->getReply(200)); // 200 or some
+	return (_locationConfig->getReply(_errorFlag));
 }
 
 

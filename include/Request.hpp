@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <set>
+#include "Server.hpp"
 #include "../include/utils.hpp"
 #define VALID_VERSION "HTTP/1.1"
 #define A_Z "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -34,6 +35,8 @@ class Request {
 		std::string _referer;
 		std::vector<std::pair<std::string, double> > _tE;
 		std::string _UserAgent;
+		
+		Location	*_locationConfig;
 
 		std::map<std::string, std::string> _dataBaseMap;
 
@@ -43,6 +46,8 @@ class Request {
 		std::map<std::string, void (Request::*)(const std::string &)> _mapFoo;
 		std::string _version;
 		std::map<std::string, std::string> _param;
+
+		int _errorFlag;
 
 		void operationInit( void );
 

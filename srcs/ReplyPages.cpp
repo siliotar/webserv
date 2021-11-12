@@ -46,7 +46,9 @@ ReplyPages::ReplyPages()
 	_names[503] = "Service Unavailable";
 	_names[504] = "Gateway Timeout";
 	_names[505] = "HTTP Version Not Supported";
+	_replyBodys[400].body = getDefaultBody(defaultBody, "400 Bad Request");
 	_replyBodys[404].body = getDefaultBody(defaultBody, "404 Not Found");
+	_replyBodys[406].body = getDefaultBody(defaultBody, "406 Not Acceptable");
 	_replyBodys[500].body = getDefaultBody(defaultBody, "500 Internal Server Error");
 	_replyBodys[501].body = getDefaultBody(defaultBody, "501 Not Implemented");
 	_replyBodys[502].body = getDefaultBody(defaultBody, "502 Bad Gateway");
