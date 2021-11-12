@@ -84,8 +84,7 @@ const std::string	ReplyPages::getReply(unsigned short reply) const
 	}
 	catch(const std::exception& e)
 	{
-		
-		throw std::to_string(reply).c_str();
+		throw "Wrong reply!";
 	}
 	try
 	{

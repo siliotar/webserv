@@ -87,7 +87,7 @@ Request::Request(const std::string & content) : _errorFlag(200)
 		else if (std::find(_methods.begin(), _methods.end(), _response) == _methods.end())
 			throw "400";
 		else
-			throw "406";
+			throw "405";
 	}
 	catch (const char * error) {
 		_errorFlag = atoi(error);

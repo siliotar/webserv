@@ -69,13 +69,27 @@ std::string Response::autoIndexOff( void ) {
 
 void Response::responseGet() {
 	struct stat buff;
-	stat((_path).c_str(), &buff);
+	if (stat(_path.c_str(), &buff) < 0)
+		throw "404";
 	if (_locationConfig->isAutoindex() && S_ISDIR(buff.st_mode)) {
 		_locationConfig = _server->getLocation(_path);
 		_locationConfig->setReplyBody(200,  autoIndexOn(), "text/html");
 	}
 	else
+	{
+		if (!S_ISDIR(buff.st_mode))
 			_locationConfig->setReplyBodyFromFile(200, _path);
+		else
+		{
+			std::string	index = _path;
+			if (index[index.size() - 1] != '/')
+				index += "/";
+			index += _locationConfig->getIndex();
+			if (stat(index.c_str(), &buff) < 0)
+				throw "404";
+			_locationConfig->setReplyBodyFromFile(200, index);
+		}
+	}
 }
 
 std::string Response::postDone ( void ) {

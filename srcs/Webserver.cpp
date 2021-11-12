@@ -77,13 +77,14 @@ void	Webserver::run()
 							std::cout << GREEN <<  msg << RESET << std::endl;
 							Server	*s = defineServer(msg, _sockets[i].socket->getPort());
 							Response response_user(msg, s);
-							std::cout << ORANGE << response_user.getResponse() << RESET << std::endl << std::endl << std::endl;
-							send(user->getSockFd(), response_user.getResponse().c_str(), response_user.getResponse().size(), 0);
 							if (response_user.getConectionClose()) {
 								_sockets.remove(i);
 								--i;
 								break ;
 							}
+							if (response_user.getResponse().size() < 500)
+								std::cout << "|" << ORANGE << response_user.getResponse() << RESET << "|" << std::endl << std::endl << std::endl;
+							send(user->getSockFd(), response_user.getResponse().c_str(), response_user.getResponse().size(), 0);
 						}
 					}
 					catch (const char *e)

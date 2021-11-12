@@ -37,7 +37,8 @@ Location		*Server::getLocation(const std::string &path)
 	std::map<std::string, Location *>::const_iterator	it = _config->getLocations().begin();
 	for (; it != _config->getLocations().end(); ++it)
 	{
-		if (!it->first.compare(0, it->first.length(), path, 0, it->first.length()))
+		int	t = (it->first.size() > 1 && it->first[it->first.size() - 1] == '/');
+		if (!it->first.compare(0, it->first.length() - t, path, 0, it->first.length() - t))
 		{
 			if (it->first.length() > maxSize)
 			{

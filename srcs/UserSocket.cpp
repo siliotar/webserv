@@ -25,7 +25,7 @@ std::string	UserSocket::popMessage()
 	_msgQueue.pop();
 	return ret;
 }
-#include <iostream>
+
 int		UserSocket::readMessage()
 {
 	std::stringstream	ss;
@@ -37,7 +37,8 @@ int		UserSocket::readMessage()
 		_buff[r] = 0;
 		ss << _buff;
 	}
-	if (r == 0 && ss.str().length() == 0)
+	std::string	t = ss.str();
+	if (r == 0 && t.length() == 0)
 		return 0;
 	_message += ss.str();
 	while ((pos = _message.find("\r\n")) != std::string::npos)
