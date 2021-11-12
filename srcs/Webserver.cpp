@@ -69,12 +69,28 @@ void	Webserver::run()
 						--i;
 						continue ;
 					}
-					Response response_user(user->getMessage(), defineServer(user->getMessage(), _sockets[i].socket->getPort()));
-					send(user->getSockFd(), response_user.getResponse().c_str(), response_user.getResponse().size(), 0);
-					std::cout << user->getMessage() << std::endl;
-					// Server	*s = defineServer(user->getMessage(), _sockets[i].socket->getPort());
-					// const Location	*loc = s->getLocation("/images");
-					// std::cout << loc->getRoot() << std::endl;
+					try
+					{
+						while (user->readyToResponse())
+						{
+							std::string	msg = user->popMessage();
+							std::cout << GREEN <<  msg << RESET << std::endl;
+							Server	*s = defineServer(msg, _sockets[i].socket->getPort());
+							if (!s) // 400
+								continue ;
+							Response response_user(msg, s);
+							std::cout << ORANGE << response_user.getResponse() << RESET << std::endl << std::endl << std::endl;
+							send(user->getSockFd(), response_user.getResponse().c_str(), response_user.getResponse().size(), 0);
+						}
+					}
+					catch (const char *e)
+					{
+							std::cout << e << std::endl;
+					}
+					catch(const std::exception& e)
+					{
+							std::cout << e.what() << std::endl;
+					}
 				}
 				_sockets[i].pollfd->revents = 0;
 			}
