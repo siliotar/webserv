@@ -56,6 +56,19 @@ $(OSOURCEFOLDER)%.o: $(SOURCEFOLDER)%.cpp
 $(NAME): $(OSOURCEFOLDER) $(OSOURCE)
 	clang++  $(OSOURCE) -o $(NAME)
 
+test:
+	mkdir YoupiBanane
+	touch YoupiBanane/youpi.bad_extension
+	touch YoupiBanane/youpi.bla
+	mkdir YoupiBanane/nop
+	touch YoupiBanane/nop/youpi.bad_extension
+	touch YoupiBanane/nop/youpi.bla
+	mkdir YoupiBanane/Yeah
+	touch YoupiBanane/Yeah/not_happy.bad_extension
+
+cleantest:
+	rm -rf YoupiBanane
+
 clean:
 	rm -rf $(OSOURCEFOLDER)
 
