@@ -15,6 +15,7 @@
 
 
 
+
 class Request {
 
 	protected:
@@ -38,22 +39,23 @@ class Request {
 		
 		Location	*_locationConfig;
 
-		std::vector<std::string> 	_methods;
 
-		std::map<std::string, std::string> _dataBaseMap;
+		std::string _postResponse;
 
 		std::string _response;
 		std::string _path;
 		std::string _location;
-		std::map<std::string, void (Request::*)(const std::string &)> _mapFoo;
 		std::string _version;
 		std::map<std::string, std::string> _param;
 
+		static std::vector<std::string> 	_methods;
+		static std::map<std::string, void (Request::*)(const std::string &)> _mapFoo;
+
 		int _errorFlag;
 
-		void responseMethod( void );
+		static std::vector<std::string> responseMethod( void );
 
-		void operationInit( void );
+		static std::map<std::string, void (Request::*)(const std::string &)> operationInit( void );
 
 		void parsPath( void );
  
@@ -96,6 +98,8 @@ class Request {
 		void TE(const std::string & str);
 
 		void UserAgent(const std::string & str);
+	
+		void anyHeaders(const std::string & str);
 
 	public:
 		Request(const std::string & content);

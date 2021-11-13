@@ -1,37 +1,79 @@
 #include "Request.hpp"
 #include "Color.hpp"
-void Request::operationInit( void )
+
+std::map<std::string, void (Request::*)(const std::string &)> Request::_mapFoo = Request::operationInit();
+
+std::vector<std::string> 	Request::_methods = Request::responseMethod();
+std::map<std::string, void (Request::*)(const std::string &)> Request::operationInit( void )
 {
-	_mapFoo["Accept-Encoding:"] = &Request::AcceptEncoding;
-	_mapFoo["Accept:"] = &Request::accept;
-	_mapFoo["Accept-Language:"] = &Request::AcceptLanguage;
-	_mapFoo["Authorization:"] = &Request::Authorization;
-	_mapFoo["Connection:"] = &Request::Conection;
-	_mapFoo["Data:"] = &Request::Data;
-	_mapFoo["From:"] = &Request::From;
-	_mapFoo["Host:"] = &Request::Host;
-	_mapFoo["If-Match:"] = &Request::IfMatch;
-	_mapFoo["If-Modified-Since:"] = &Request::IfModifiedSince;
-	_mapFoo["If-None-Match:"] = &Request::IfNoneMatch;
-	_mapFoo["If-Range:"] = &Request::IfRange;
-	_mapFoo["If-Unmodified-Since:"] = &Request::IfUnmodifiedSince;
-	_mapFoo["Referer:"] = &Request::Referer;
-	_mapFoo["UserAgent:"] = &Request::UserAgent;
+	std::map<std::string, void (Request::*)(const std::string &)> m;
+	m["Accept-Encoding:"] = &Request::AcceptEncoding;
+	m["Accept:"] = &Request::accept;
+	m["Accept-Language:"] = &Request::AcceptLanguage;
+	m["Authorization:"] = &Request::Authorization;
+	m["Connection:"] = &Request::Conection;
+	m["Data:"] = &Request::Data;
+	m["From:"] = &Request::From;
+	m["Host:"] = &Request::Host;
+	m["If-Match:"] = &Request::IfMatch;
+	m["If-Modified-Since:"] = &Request::IfModifiedSince;
+	m["If-None-Match:"] = &Request::IfNoneMatch;
+	m["If-Range:"] = &Request::IfRange;
+	m["If-Unmodified-Since:"] = &Request::IfUnmodifiedSince;
+	m["Referer:"] = &Request::Referer;
+	m["UserAgent:"] = &Request::UserAgent;
+	m["Pragma:"] = &Request::anyHeaders;
+	m["Sec-Fetch-Site:"] = &Request::anyHeaders;
+	m["Sec-Fetch-Mode:"] = &Request::anyHeaders;
+	m["Sec-Fetch-Dest:"] = &Request::anyHeaders;
+	m["Cache-Control:"] = &Request::anyHeaders;
+	m["sec-ch-ua:"] = &Request::anyHeaders;
+	m["sec-ch-ua-mobile:"] = &Request::anyHeaders;
+	m["User-Agent:"] = &Request::anyHeaders;
+	m["sec-ch-ua-platform:"] = &Request::anyHeaders;
+	m["Upgrade-Insecure-Requests:"] = &Request::anyHeaders;
+	m["Sec-Fetch-User:"] = &Request::anyHeaders;
+	return m;
 }
 
-void	Request::responseMethod( void )
+std::vector<std::string>	Request::responseMethod( void )
 {
 	// _methods.push_back("GET");
 	// _methods.push_back("POST");
 	// _methods.push_back("DELETE");
-	_methods.push_back("PUT");
-	_methods.push_back("HEAD");
-	_methods.push_back("CONNECT");
-	_methods.push_back("HEAD");
-	_methods.push_back("OPTIONS");
-	_methods.push_back("PATCH");
-	_methods.push_back("TRACE");
+	std::vector<std::string> a;
+	a.push_back("PUT");
+	a.push_back("HEAD");
+	a.push_back("CONNECT");
+	a.push_back("HEAD");
+	a.push_back("OPTIONS");
+	a.push_back("PATCH");
+	a.push_back("TRACE");
+	return a;
 }
+
+Request::Request(const std::string & content) : _errorFlag(200)
+{
+	std::string str;
+	std::istringstream ss(content);
+	std::getline(ss, str);
+	std::istringstream s(str);
+	s >> _response >> _path >> _version;
+	parsPath();
+	try {
+		if (_response == "GET" || _response == "POST" || _response == "DELETE")
+			parsResponse(ss, str);
+		else if (std::find(_methods.begin(), _methods.end(), _response) == _methods.end())
+			throw "400";
+		else
+			throw "405";
+	}
+	catch (const char * error) {
+		std::cout << RED << error << RESET << std::endl;
+		_errorFlag = atoi(error);
+	}
+}
+
 void Request::parsResponse(std::istringstream & ss, std::string & str)
 {
 
@@ -52,47 +94,23 @@ void Request::parsResponse(std::istringstream & ss, std::string & str)
 		s >> key;
 		std::string value;
 		std::getline(s, value);
-		
+		if (key == "")
+			continue;
 		std::map<std::string, void (Request::*)(const std::string &)>::iterator it;
 		it = _mapFoo.find(key);
 		if (it != _mapFoo.end())
 			(this->*(it->second))(value);
+		else
+			throw ("400");
 	}
 	if (_response == "POST")
 		while (ss)	{
 			std::getline (ss, str);
 			if (str != "\n")
-			{
-				int k = str.find("=");
-				_dataBaseMap[str.substr(0, k)] = str.substr(k + 1);
-			}
+				_postResponse += str;
 	}
 }
 
-Request::Request(const std::string & content) : _errorFlag(200)
-{
-	responseMethod();
-	std::string str;
-	std::istringstream ss(content);
-	operationInit();
-	std::getline(ss, str);
-	std::istringstream s(str);
-	s >> _response >> _path >> _version;
-	
-
-	parsPath();
-	try {
-		if (_response == "GET" || _response == "POST" || _response == "DELETE")
-			parsResponse(ss, str);
-		else if (std::find(_methods.begin(), _methods.end(), _response) == _methods.end())
-			throw "400";
-		else
-			throw "405";
-	}
-	catch (const char * error) {
-		_errorFlag = atoi(error);
-	}
-}
 
 void Request::parsPath() {
 	size_t a;
@@ -158,7 +176,7 @@ void Request::CacheControl(const std::string & str)
 void Request::Conection(const std::string & str)
 {
 	if (str == " close") {
-		exit (0); //kill user or serwer
+		throw("400:Conection");
 	}
 	else if (str != " keep-alive")
 		throw("400:Conection");
@@ -259,4 +277,8 @@ void Request::UserAgent(const std::string & str){
 	_UserAgent = str;
 }
 
+void Request::anyHeaders(const std::string & str) {
+	std::string s = str;
+}
 Request::~Request() { }
+

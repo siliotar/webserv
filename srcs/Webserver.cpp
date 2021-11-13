@@ -83,7 +83,7 @@ void	Webserver::run()
 								break ;
 							}
 							if (response_user.getResponse().size() < 500)
-								std::cout << "|" << ORANGE << response_user.getResponse() << RESET << "|" << std::endl << std::endl << std::endl;
+								std::cout << ORANGE << response_user.getResponse() << RESET << std::endl << std::endl << std::endl;
 							send(user->getSockFd(), response_user.getResponse().c_str(), response_user.getResponse().size(), 0);
 						}
 					}

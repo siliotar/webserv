@@ -97,14 +97,21 @@ std::string Response::postDone ( void ) {
 	int a = str.find("<form action=\"\" method=\"post\">");
 	int b = str.find_last_of("<input type=\"submit\" value=\"Save\"></form>");
 	str.erase(a, b);
-	str.insert(a, "User: " + _dataBaseMap["name"] );
+	str.insert(a, ("User: " + _postResponse));
 	return (str);
 
 
 }
 void Response::responsePost() {
-
-
+	struct stat buff;
+	if (stat(_path.c_str(), &buff) < 0)
+	{
+		std::ofstream outfile(_path);
+		outfile << _postResponse;
+	}
+	if (S_ISREG(buff.st_mode)) {
+		
+	}
 	_locationConfig->setReplyBody(200,  postDone(), "text/html");
 }
 
