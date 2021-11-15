@@ -51,11 +51,13 @@ int		UserSocket::readMessage()
 	_message += ss.str();
 	while ((pos = _message.find("\r\n")) != std::string::npos)
 		_message.replace(pos, 2, "\n");
+	if (_message == "\n\n")
+		_message = "";
 	size_t	ln;
 	while ((ln = completeMessage()))
 	{
 		if (_message.find("Content-Length: ") != std::string::npos)
-			pos = _message.find("\n\n") + 2 + ln;
+			pos = _message.find("\n\n") + 1 + ln;
 		else
 			pos = _message.find("\n\n", _message.find("\n\n"));
 		_msgQueue.push(_message.substr(0, pos + 1));

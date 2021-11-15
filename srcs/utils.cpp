@@ -12,7 +12,7 @@ std::string	readFile(const std::string &path)
 	std::stringstream	ss;
 
 	if (!fin.is_open())
-		throw "Failed to open file!";
+		throw "404::Failed to open file!";
 	ss << fin.rdbuf();
     fin.close();
 	return (ss.str());

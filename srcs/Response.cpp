@@ -1,12 +1,20 @@
 #include "Response.hpp"
 
 
-Response::Response(const std::string & request, Server * server) : Request(request), \
-_conectionClose(false), _directoryListingDefult(readFile("defaultPages/directory_listing.html")), _server(server) {
-	_locationConfig = _server->getLocation(_path);
+Response::Response(const std::string & request, Server * server) : Request(request, server), \
+_conectionClose(false), _directoryListingDefult(readFile("defaultPages/directory_listing.html")) {
+	
+	
 	_locationConfig->clearHeaders();
 	_oldPath = _path;
 	_path = _locationConfig->getPath(_path);
+	std::string tmp = _path;
+	if (_path.find("?") != std::string::npos)
+	{
+		_path.erase(_path.find("?"));
+		_oldPath.erase(_oldPath.find("?"));
+
+	}
 	if (_errorFlag == 200)
 	{
 		try {
@@ -17,6 +25,8 @@ _conectionClose(false), _directoryListingDefult(readFile("defaultPages/directory
 				responseGet();	
 			else if (_response == "POST")
 				responsePost();
+			else if (_response == "DELETE")
+				responseDelete();
 		}
 		catch (const char *str) {
 			_errorFlag = atoi(str);
@@ -92,67 +102,25 @@ void Response::responseGet() {
 	}
 }
 
-std::string Response::postDone ( void ) {
-	std::string str (readFile(_locationConfig->getPath("/index.html")));
-	int a = str.find("<form action=\"\" method=\"post\">");
-	int b = str.find_last_of("<input type=\"submit\" value=\"Save\"></form>");
-	str.erase(a, b);
-	str.insert(a, ("User: " + _postResponse));
-	return (str);
-
-
-}
 void Response::responsePost() {
 	struct stat buff;
 	if (stat(_path.c_str(), &buff) < 0)
 	{
+		std::cout << _postResponse << std::endl;
 		std::ofstream outfile(_path.c_str());
 		outfile << _postResponse;
 	}
 	if (S_ISREG(buff.st_mode)) {
-		
+		_locationConfig->setReplyBody(200, readFile(_path), "text/html");
 	}
-	_locationConfig->setReplyBody(200,  postDone(), "text/html");
-}
-
-void Response::responseDelete() {
-	
-}
-
-
-void Response::acceptRanges(const std::string & str) {
-	(void)str;
-}
-void Response::age(const std::string & str) {
-	(void)str;
-}
-void Response::alternates(const std::string & str) {
-	(void)str;
-}
-void Response::contentDisposition () {
-
-}
-void Response::eTag() {
-
-}
-void Response::location() {
-
-}
-void Response::publicR(void) { 
-
-}
-void Response::retryAfter () {
-
-}
-void Response::server () {
-
-}
-void Response::vary() {
-
 }
 
 bool	Response::getConectionClose( void ) {
 	return _conectionClose;
+}
+void Response::responseDelete( void ) {
+	if (remove(_path.c_str()) < 0)
+		throw ("404::DELETE");
 }
 
 std::string Response::getResponse( void ) {
@@ -161,23 +129,10 @@ std::string Response::getResponse( void ) {
 		_conectionClose = true;
 		_locationConfig->setHeader("Connection", "close");
 	}
+	else
+		_locationConfig->setHeader("Connection", "keep-alive");
 	return (_locationConfig->getReply(_errorFlag));
 }
 
+Response::~Response() { }
 
-
-// int main() {
-	
-// 	try {
-// 	Response a("GET . HTTP/1.1");
-// 	a.AutoIndexOn();
-// 	}
-// 	catch (std::string ex) {
-// 		std::cout << ex << std::endl;
-// 	}
-// 	catch (const char *ex) {
-// 		std::cout << ex << std::endl;
-// 	}
-// 	// std::cout << str << std::endl;
-// 	return 0;    
-// }

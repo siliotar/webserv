@@ -19,6 +19,7 @@
 class Request {
 
 	protected:
+
 		std::vector<std::pair<std::string, double> > _accept;
 		std::vector<std::pair<std::string, double> > _acceptEncoding;
 		std::vector<std::pair<std::string, double> > _acceptLanguage;
@@ -51,7 +52,8 @@ class Request {
 		static std::vector<std::string> 	_methods;
 		static std::map<std::string, void (Request::*)(const std::string &)> _mapFoo;
 
-		int _errorFlag;
+		int 				_errorFlag;
+		Server				*_server;
 
 		static std::vector<std::string> responseMethod( void );
 
@@ -101,8 +103,15 @@ class Request {
 	
 		void anyHeaders(const std::string & str);
 
+		Request();
+
+		Request(const Request &);
+
+		Request & operator=(const Request &);
+
 	public:
-		Request(const std::string & content);
+		Request(const std::string & content, Server *);
+
 		virtual ~Request();
 
 };

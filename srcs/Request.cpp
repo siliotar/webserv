@@ -51,7 +51,7 @@ std::vector<std::string>	Request::responseMethod( void )
 	return a;
 }
 
-Request::Request(const std::string & content) : _errorFlag(200)
+Request::Request(const std::string & content, Server * serv) : _errorFlag(200), _server(serv)
 {
 	std::string str;
 	std::istringstream ss(content);
@@ -59,7 +59,13 @@ Request::Request(const std::string & content) : _errorFlag(200)
 	std::istringstream s(str);
 	s >> _response >> _path >> _version;
 	parsPath();
+	_locationConfig = _server->getLocation(_path);
 	try {
+		std::vector<std::string>::const_iterator it_begin = _locationConfig->getAllowMethods().begin();
+		std::vector<std::string>::const_iterator it_end = _locationConfig->getAllowMethods().end();
+		std::vector<std::string>::const_iterator it_f = std::find(it_begin, it_end, _response);
+		if (it_f == it_end)
+			throw "405::findmethod";
 		if (_response == "GET" || _response == "POST" || _response == "DELETE")
 			parsResponse(ss, str);
 		else if (std::find(_methods.begin(), _methods.end(), _response) == _methods.end())
@@ -83,7 +89,7 @@ void Request::parsResponse(std::istringstream & ss, std::string & str)
 		throw ("505:version");
 	while (ss) {
 		std::getline(ss, str);
-		if (str == "\r\n" || str == "\n" || str == "\r")
+		if (str == "\r\n" || str == "\n" || str == "\r" || str == "")
 			break;
 		s.clear();
 		if (str[str.size() - 1] == '\r')
@@ -108,7 +114,6 @@ void Request::parsResponse(std::istringstream & ss, std::string & str)
 				int w = key.find_first_not_of(tmp);
 				if (w != -1)
 				{
-					std::cout << w << " " << key << std::endl;
 					throw ("400::method1");
 				}
 			}
@@ -117,11 +122,12 @@ void Request::parsResponse(std::istringstream & ss, std::string & str)
 		}
 	}
 	if (_response == "POST")
-		while (ss)	{
+		while (1) {
 			std::getline (ss, str);
-			if (str != "\n")
-				_postResponse += str;
-	}
+			if (!ss)
+				break;
+			_postResponse += str + '\n';
+		}
 }
 
 
