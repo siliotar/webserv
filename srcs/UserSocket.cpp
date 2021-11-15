@@ -10,13 +10,21 @@ UserSocket::UserSocket(int fd, int port)
 UserSocket::~UserSocket()
 {}
 
-bool	UserSocket::completeMessage() const
+size_t	UserSocket::completeMessage() const
 {
 	size_t	pos;
+	size_t	lnPos;
 	if ((pos = _message.find("\n\n")) != std::string::npos)
+	{
+		if ((lnPos = _message.find("Content-Length: ")) != std::string::npos)
+		{
+			size_t	ln = atoi(_message.c_str() + lnPos + 16);
+			return ((_message.length() - pos - 2) >= ln) ? ln : 0;
+		}
 		if (_message.find("\n\n", pos) != std::string::npos)
-			return true;
-	return false;
+			return 1;
+	}
+	return 0;
 }
 
 std::string	UserSocket::popMessage()
@@ -43,9 +51,13 @@ int		UserSocket::readMessage()
 	_message += ss.str();
 	while ((pos = _message.find("\r\n")) != std::string::npos)
 		_message.replace(pos, 2, "\n");
-	while (completeMessage())
+	size_t	ln;
+	while ((ln = completeMessage()))
 	{
-		pos = _message.find("\n\n", _message.find("\n\n"));
+		if (_message.find("Content-Length: ") != std::string::npos)
+			pos = _message.find("\n\n") + 2 + ln;
+		else
+			pos = _message.find("\n\n", _message.find("\n\n"));
 		_msgQueue.push(_message.substr(0, pos + 1));
 		_message.erase(0, pos + 2);
 	}

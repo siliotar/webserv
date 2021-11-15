@@ -106,7 +106,7 @@ void Response::responsePost() {
 	struct stat buff;
 	if (stat(_path.c_str(), &buff) < 0)
 	{
-		std::ofstream outfile(_path);
+		std::ofstream outfile(_path.c_str());
 		outfile << _postResponse;
 	}
 	if (S_ISREG(buff.st_mode)) {
