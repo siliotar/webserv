@@ -1,19 +1,26 @@
 #include "Response.hpp"
 
 
-Response::Response(const std::string & request, Server * server) : \
-Request(request), _directoryListingDefult(readFile("defaultPages/directory_listing.html")), _server(server) {
-	try {
-		if (_response == "GET")
-			responseGet();
-		else if (_response == "POST")
-			responsePost();
-	}
-	catch (const char * str) { 
-		std::cout << str << std::endl;
-	}
-	catch (const int num_error) { 
-		std::cout << num_error << std::endl;
+Response::Response(const std::string & request, Server * server) : Request(request), \
+_conectionClose(false), _directoryListingDefult(readFile("defaultPages/directory_listing.html")), _server(server) {
+	_locationConfig = _server->getLocation(_path);
+	_locationConfig->clearHeaders();
+	_oldPath = _path;
+	_path = _locationConfig->getPath(_path);
+	if (_errorFlag == 200)
+	{
+		try {
+			const std::vector<std::string> tmp_vec = _locationConfig->getAllowMethods();
+			if (std::find(tmp_vec.begin(), tmp_vec.end(), _response) == tmp_vec.end())
+				throw("405:response");
+			if (_response == "GET")
+				responseGet();	
+			else if (_response == "POST")
+				responsePost();
+		}
+		catch (const char *str) {
+			_errorFlag = atoi(str);
+		}
 	}
 }
 
@@ -61,18 +68,28 @@ std::string Response::autoIndexOff( void ) {
 
 
 void Response::responseGet() {
-
-	_locationConfig = _server->getLocation(_path);
-	_oldPath = _path;
-	_path = _locationConfig->getPath(_path);
 	struct stat buff;
-	stat((_path).c_str(), &buff);
+	if (stat(_path.c_str(), &buff) < 0)
+		throw "404";
 	if (_locationConfig->isAutoindex() && S_ISDIR(buff.st_mode)) {
 		_locationConfig = _server->getLocation(_path);
 		_locationConfig->setReplyBody(200,  autoIndexOn(), "text/html");
 	}
 	else
-		_locationConfig->setReplyBodyFromFile(200,  _path);
+	{
+		if (!S_ISDIR(buff.st_mode))
+			_locationConfig->setReplyBodyFromFile(200, _path);
+		else
+		{
+			std::string	index = _path;
+			if (index[index.size() - 1] != '/')
+				index += "/";
+			index += _locationConfig->getIndex();
+			if (stat(index.c_str(), &buff) < 0)
+				throw "404";
+			_locationConfig->setReplyBodyFromFile(200, index);
+		}
+	}
 }
 
 std::string Response::postDone ( void ) {
@@ -80,13 +97,21 @@ std::string Response::postDone ( void ) {
 	int a = str.find("<form action=\"\" method=\"post\">");
 	int b = str.find_last_of("<input type=\"submit\" value=\"Save\"></form>");
 	str.erase(a, b);
-	str.insert(a, "User: " + _dataBaseMap["name"] );
+	str.insert(a, ("User: " + _postResponse));
 	return (str);
 
 
 }
 void Response::responsePost() {
-
+	struct stat buff;
+	if (stat(_path.c_str(), &buff) < 0)
+	{
+		std::ofstream outfile(_path);
+		outfile << _postResponse;
+	}
+	if (S_ISREG(buff.st_mode)) {
+		
+	}
 	_locationConfig->setReplyBody(200,  postDone(), "text/html");
 }
 
@@ -126,8 +151,17 @@ void Response::vary() {
 
 }
 
-std::string Response::getResponse ( void ) {
-	return (_locationConfig->getReply(200)); // 200 or some
+bool	Response::getConectionClose( void ) {
+	return _conectionClose;
+}
+
+std::string Response::getResponse( void ) {
+	if (_errorFlag == 400)
+	{
+		_conectionClose = true;
+		_locationConfig->setHeader("Connection", "close");
+	}
+	return (_locationConfig->getReply(_errorFlag));
 }
 
 

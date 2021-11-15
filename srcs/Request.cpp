@@ -1,78 +1,121 @@
 #include "Request.hpp"
 #include "Color.hpp"
-void Request::operationInit( void )
+
+std::map<std::string, void (Request::*)(const std::string &)> Request::_mapFoo = Request::operationInit();
+
+std::vector<std::string> 	Request::_methods = Request::responseMethod();
+std::map<std::string, void (Request::*)(const std::string &)> Request::operationInit( void )
 {
-	_mapFoo["Accept-Encoding:"] = &Request::AcceptEncoding;
-	_mapFoo["Accept:"] = &Request::accept;
-	_mapFoo["Accept-Language:"] = &Request::AcceptLanguage;
-	_mapFoo["Authorization:"] = &Request::Authorization;
-	_mapFoo["Cache-Control:"] = &Request::Conection;
-	_mapFoo["Data:"] = &Request::Data;
-	_mapFoo["From:"] = &Request::From;
-	_mapFoo["Host:"] = &Request::Host;
-	_mapFoo["If-Match:"] = &Request::IfMatch;
-	_mapFoo["If-Modified-Since:"] = &Request::IfModifiedSince;
-	_mapFoo["If-None-Match:"] = &Request::IfNoneMatch;
-	_mapFoo["If-Range:"] = &Request::IfRange;
-	_mapFoo["If-Unmodified-Since:"] = &Request::IfUnmodifiedSince;
-	_mapFoo["Referer:"] = &Request::Referer;
-	_mapFoo["UserAgent:"] = &Request::UserAgent;
+	std::map<std::string, void (Request::*)(const std::string &)> m;
+	m["Accept-Encoding:"] = &Request::AcceptEncoding;
+	m["Accept:"] = &Request::accept;
+	m["Accept-Language:"] = &Request::AcceptLanguage;
+	m["Authorization:"] = &Request::Authorization;
+	m["Connection:"] = &Request::Conection;
+	m["Data:"] = &Request::Data;
+	m["From:"] = &Request::From;
+	m["Host:"] = &Request::Host;
+	m["If-Match:"] = &Request::IfMatch;
+	m["If-Modified-Since:"] = &Request::IfModifiedSince;
+	m["If-None-Match:"] = &Request::IfNoneMatch;
+	m["If-Range:"] = &Request::IfRange;
+	m["If-Unmodified-Since:"] = &Request::IfUnmodifiedSince;
+	m["Referer:"] = &Request::Referer;
+	m["UserAgent:"] = &Request::UserAgent;
+	m["Pragma:"] = &Request::anyHeaders;
+	m["Sec-Fetch-Site:"] = &Request::anyHeaders;
+	m["Sec-Fetch-Mode:"] = &Request::anyHeaders;
+	m["Sec-Fetch-Dest:"] = &Request::anyHeaders;
+	m["Cache-Control:"] = &Request::anyHeaders;
+	m["sec-ch-ua:"] = &Request::anyHeaders;
+	m["sec-ch-ua-mobile:"] = &Request::anyHeaders;
+	m["User-Agent:"] = &Request::anyHeaders;
+	m["sec-ch-ua-platform:"] = &Request::anyHeaders;
+	m["Upgrade-Insecure-Requests:"] = &Request::anyHeaders;
+	m["Sec-Fetch-User:"] = &Request::anyHeaders;
+	return m;
 }
 
+std::vector<std::string>	Request::responseMethod( void )
+{
+	// _methods.push_back("GET");
+	// _methods.push_back("POST");
+	// _methods.push_back("DELETE");
+	std::vector<std::string> a;
+	a.push_back("PUT");
+	a.push_back("HEAD");
+	a.push_back("CONNECT");
+	a.push_back("HEAD");
+	a.push_back("OPTIONS");
+	a.push_back("PATCH");
+	a.push_back("TRACE");
+	return a;
+}
+
+Request::Request(const std::string & content) : _errorFlag(200)
+{
+	std::string str;
+	std::istringstream ss(content);
+	std::getline(ss, str);
+	std::istringstream s(str);
+	s >> _response >> _path >> _version;
+	parsPath();
+	try {
+		if (_response == "GET" || _response == "POST" || _response == "DELETE")
+			parsResponse(ss, str);
+		else if (std::find(_methods.begin(), _methods.end(), _response) == _methods.end())
+			throw "400";
+		else
+			throw "405";
+	}
+	catch (const char * error) {
+		std::cout << RED << error << RESET << std::endl;
+		_errorFlag = atoi(error);
+	}
+}
 
 void Request::parsResponse(std::istringstream & ss, std::string & str)
 {
 
+	
 	std::stringstream s;
 	_location = _path;
 	if (_version != VALID_VERSION)
-		throw (400);
+		throw ("505:version");
 	while (ss) {
 		std::getline(ss, str);
 		if (str == "\r\n" || str == "\n" || str == "\r")
 			break;
 		s.clear();
+		if (str[str.size() - 1] == '\r')
+			str = str.substr(0, str.size() - 1);
 		s.str(str);
 		std::string key;
 		s >> key;
 		std::string value;
 		std::getline(s, value);
-		
+		if (key == "")
+			continue;
 		std::map<std::string, void (Request::*)(const std::string &)>::iterator it;
 		it = _mapFoo.find(key);
-		std::cout << RED << key << RESET << std::endl;
 		if (it != _mapFoo.end())
 			(this->*(it->second))(value);
+		else
+			throw ("400");
 	}
 	if (_response == "POST")
 		while (ss)	{
 			std::getline (ss, str);
 			if (str != "\n")
-			{
-				int k = str.find("=");
-				_dataBaseMap[str.substr(0, k)] = str.substr(k + 1);
-			}
+				_postResponse += str;
 	}
 }
 
-Request::Request(const std::string & content)
-{
-	std::string str;
-	std::istringstream ss(content);	
-	operationInit();
-	std::getline(ss, str);
-	std::istringstream s(str);
-	s >> _response >> _path >> _version;
-	parsPath();
-	parsResponse(ss, str);
-}
 
 void Request::parsPath() {
 	size_t a;
 	while ((a = _path.find("%20")) != std::string::npos)
-	{
-		_path.replace(a, 3, " ");
-	}
+		_path.replace(a, 3, " ");	
 }
 // what do this information??
 void Request::accept(const std::string & str) {
@@ -80,12 +123,7 @@ void Request::accept(const std::string & str) {
 	std::string tmp; 
 	tmp += std::string(NOT_DISPLAYED) + "():<>?@[\\]{}";
 	if (str.find_first_of(tmp) != std::string::npos)
-		throw(406); // ???????????????????
-	//Use MIME pars not valid parametr
-	//Use MIME
-	//Use MIME
-	//Use MIME
-	//Use MIME
+		throw("406:AcceptEncoding");
 	_accept = value_prec(str);
 }
 
@@ -104,19 +142,20 @@ void Request::AcceptEncoding(const std::string & str) {
 	correct_str.insert("br");
 	correct_str.insert("identity");
 	correct_str.insert("*");
+
 	for (size_t i = 0; i < _acceptEncoding.size(); i++)
 	{
 		std::set<std::string>::iterator it = correct_str.find(_acceptEncoding[i].first);
 		if (it == correct_str.end())
-			throw("Encoding"); // ???????????????????
+			throw("406:AcceptEncoding");
 	}
 }
 
 void Request::AcceptLanguage(const std::string & str) {
 	std::string tmp; 
-	tmp += std::string(A_Z) + std::string(a_z) + "*,-.;=";
+	tmp += std::string(A_Z) + std::string(a_z) + std::string(Num) + "*,-.;= \15";
 	if (str.find_first_not_of(tmp) != std::string::npos)
-		throw("400::lange"); // ???????????????????
+		throw("406:AcceptLanguage");
 	_acceptLanguage = value_prec(str); 
 }
 
@@ -128,13 +167,8 @@ void Request::Authorization(const std::string & str) {
 	else if (vec[0] == "Digest") {
 		
 	}
-	else {
-		throw (406);  // ???????????????????
-	}
-	// ?
-	// ?
-	// ?
-	// ?
+	else
+		throw ("400:Authorization");
 }
 
 void Request::CacheControl(const std::string & str)
@@ -145,19 +179,18 @@ void Request::CacheControl(const std::string & str)
 
 void Request::Conection(const std::string & str)
 {
-	if (str == "close") {
-		throw ("Conection::400"); // ???????????????????
+	if (str == " close") {
+		throw("400:Conection");
 	}
-	else if (str != "keep-alive") {
-		// throw("Connection::400"); // ?????????????????????
-	}
+	else if (str != " keep-alive")
+		throw("400:Conection");
 }
 
 void Request::Data(const std::string & str)
 {
 		std::vector<std::string> data = split(str, " :");
 	if (!parsData(data))
-		throw ("406::Data"); // ???????????? 
+		throw ("400:Data");
 	_dataMassage = str;
 }
 
@@ -166,7 +199,7 @@ void Request::From(const std::string & str) {
 	std::string tmp;
 	ss >> tmp;
 	if (ss) {
-		throw ("406::form"); // ??????????????
+		throw ("400:From");
 	}
 	_mail = tmp;
 }
@@ -174,7 +207,7 @@ void Request::From(const std::string & str) {
 void Request::Host(const std::string & str) {
 	std::vector<std::string> tmp = split(str, ":");
 	if (tmp.size() != 2)
-		throw ("406::host"); //??????????????
+		throw ("400:Host");
 	_host = tmp[0];
 	_port = tmp[1];
 }
@@ -182,20 +215,20 @@ void Request::Host(const std::string & str) {
 void Request::IfMatch(const std::string & str) {
 	_ifMatch = split(str, " ");
 	if (_ifMatch.size() < 1)
-		throw ("406::ifMatch"); // ???????????????
+		throw ("400:IfMatch");
 }
 
 void Request::IfModifiedSince(const std::string & str) {
 		std::vector<std::string> data = split(str, " :");
 		if (!parsData(data))
-		throw ("406::IfModifiedSince"); // ???????????? 
+		throw ("400:IfModifiedSince");
 	_dataIfModifiedSince = str;
 }
 
 void Request::IfNoneMatch(const std::string & str) {
 	_ifNoneMatch = split(str, " ");
 	if (_ifNoneMatch.size() < 1)
-		throw ("406::IfNoneMatch"); // ???????????????
+		throw ("400:IfNoneMatch");
 }
 
 void Request::IfRange(const std::string & str) {
@@ -206,34 +239,21 @@ void Request::IfRange(const std::string & str) {
 		return ;
 	}
 	if (!parsData(data))
-		throw ("206::IfRange"); // ???????????? 
+		throw ("400:IfRange");
 	_ifRange = str;
 }
 
 void Request::IfUnmodifiedSince(const std::string & str) {
 		std::vector<std::string> data = split(str, " :");
 		if (!parsData(data))
-		throw ("406::IfModifiedSince"); // ???????????? 
+		throw ("400:IfUnmodifiedSince"); 
 	_ifUnmodifiedSince = str;
 }
 void ProxyAuthorization(const std::string & str){
 	(void)str;
-	//????????????????????????????
-	//????????????????????????????
-	//????????????????????????????
-	//????????????????????????????
-	//????????????????????????????
-	//????????????????????????????
 }
 void Request::Range(const std::string & str) {
 	(void)str;
-	//????????????????????????????
-	//????????????????????????????
-	//????????????????????????????
-	//????????????????????????????
-	//????????????????????????????
-	//????????????????????????????
-	//The server can also ignore the Range header and return the whole document with a 200 status code. OK))))
 }
 
 void Request::Referer(const std::string & str) {
@@ -253,33 +273,16 @@ void Request::TE(const std::string & str) {
 	{
 		std::set<std::string>::iterator it = correct_str.find(_tE[i].first);
 		if (it == correct_str.end())
-			throw("406"); // ???????????????????
+			throw("400:TE");
 	}
 }
 
 void Request::UserAgent(const std::string & str){
 	_UserAgent = str;
-	// kak zdes kakati
 }
 
+void Request::anyHeaders(const std::string & str) {
+	std::string s = str;
+}
 Request::~Request() { }
 
-// int main()
-// {
-// 	std::string str = "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8";
-// 	std::string tmp; 
-// 	tmp += std::string(NOT_DISPLAYED) + "():<>?@[\\]{}";
-// 	std::vector<std::pair<std::string, double> > _accept;
-// 	int a = stoi(std::string("124"));
-// 	std::cout << a << std::endl;
-// 	// if (str.find_first_of(tmp) != std::string::npos)
-// 	// {
-// 	//     std::cout << "BAN" << std::endl;
-// 	// }
-// 	// else
-// 	// {
-// 	//     _accept = value_prec(str);
-// 	//     for (int i = 0; i < _accept.size(); i++)
-// 	//         std::cout << _accept[i].first << " " << _accept[i].second << std::endl;
-// 	// }
-// }

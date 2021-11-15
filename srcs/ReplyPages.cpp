@@ -46,7 +46,10 @@ ReplyPages::ReplyPages()
 	_names[503] = "Service Unavailable";
 	_names[504] = "Gateway Timeout";
 	_names[505] = "HTTP Version Not Supported";
+	_replyBodys[400].body = getDefaultBody(defaultBody, "400 Bad Request");
 	_replyBodys[404].body = getDefaultBody(defaultBody, "404 Not Found");
+	_replyBodys[405].body = getDefaultBody(defaultBody, "405 Method Not Allowed");
+	_replyBodys[406].body = getDefaultBody(defaultBody, "406 Not Acceptable");
 	_replyBodys[500].body = getDefaultBody(defaultBody, "500 Internal Server Error");
 	_replyBodys[501].body = getDefaultBody(defaultBody, "501 Not Implemented");
 	_replyBodys[502].body = getDefaultBody(defaultBody, "502 Bad Gateway");
@@ -91,6 +94,9 @@ const std::string	ReplyPages::getReply(unsigned short reply) const
 	}
 	catch(const std::exception& e)
 	{}
+	std::map<std::string, std::string>::const_iterator	it = _headers.begin();
+	for (; it != _headers.end(); ++it)
+		ss << it->first << ": " << it->second << std::endl;
 	ss << std::endl;
 	try
 	{
@@ -114,7 +120,14 @@ void				ReplyPages::setReplyBodyFromFile(unsigned short reply, const std::string
 	if (bodyPath.find_last_of('.') == std::string::npos)
 		throw "Unsupported file!";
 	_replyBodys[reply].body = readFile(bodyPath);
-	_replyBodys[reply].type = MIME::getType(bodyPath.substr(bodyPath.find_last_of('.') + 1));
+	try
+	{
+		_replyBodys[reply].type = MIME::getType(bodyPath.substr(bodyPath.find_last_of('.') + 1));
+	}
+	catch(const char *e)
+	{
+		_replyBodys[reply].type = "text";
+	}
 }
 
 void				ReplyPages::setReplyBody(unsigned short reply, const std::string &body, const std::string &type)
@@ -129,4 +142,14 @@ void				ReplyPages::setReplyBody(unsigned short reply, const std::string &body, 
 	}
 	_replyBodys[reply].body = body;
 	_replyBodys[reply].type = type;
+}
+
+void				ReplyPages::setHeader(const std::string &key, const std::string &value)
+{
+	_headers[key] = value;
+}
+
+void				ReplyPages::clearHeaders()
+{
+	_headers.clear();
 }

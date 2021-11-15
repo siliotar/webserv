@@ -45,9 +45,16 @@ const std::string				&Location::getIndex() const
 std::string						Location::getPath(const std::string &path) const
 {
 	size_t	pos;
+	std::string	res;
 	if ((pos = path.find(_name)) == std::string::npos)
-		return path;
-	std::string	res = path;
+	{
+		if ((pos = (path + "/").find(_name)) == std::string::npos)
+			return path;
+		else
+			res = path + "/";
+	}
+	else
+		res = path;
 	return res.replace(pos, _name.size(), _root);
 }
 
@@ -149,4 +156,14 @@ bool	Location::parseLocation(const std::vector<std::string> &splitedLine)
 		return true;
 	}
 	return false;
+}
+
+void	Location::setHeader(const std::string &key, const std::string &value)
+{
+	_errorPages.setHeader(key, value);
+}
+
+void	Location::clearHeaders()
+{
+	_errorPages.clearHeaders();
 }

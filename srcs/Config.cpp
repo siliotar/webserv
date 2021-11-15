@@ -16,10 +16,7 @@ Config::Config(const char *path)
 	}
 	std::string	config = ss.str();
 	for (std::string tmp = getServer(config); tmp.length() > 0; tmp = getServer(config))
-	{
 		_servers.push_back(new ServerConfig(tmp));
-		// std::cout << tmp << std::endl;
-	}
 }
 
 std::string	Config::getServer(std::string &config)
@@ -59,10 +56,10 @@ std::string	Config::getServer(std::string &config)
 
 Config::~Config()
 {
-	for (size_t i = 0; i < _servers.size(); ++i)
-	{
-		delete _servers[i];
-	}
+	// for (size_t i = 0; i < _servers.size(); ++i)
+	// {
+	// 	delete _servers[i];
+	// }
 }
 
 const std::vector<ServerConfig *>	Config::getServers() const

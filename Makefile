@@ -16,6 +16,22 @@ SOURCEFILES=	main.cpp \
 				Response.cpp \
 				Request.cpp
 
+HEADERS=		include/Color.hpp \
+				include/Config.hpp \
+				include/ListenSocket.hpp \
+				include/Location.hpp \
+				include/MIME.hpp \
+				include/ReplyPages.hpp \
+				include/Request.hpp \
+				include/Response.hpp \
+				include/Server.hpp \
+				include/ServerConfig.hpp \
+				include/SocketContainer.hpp \
+				include/t_listen.hpp \
+				include/UserSocket.hpp \
+				include/utils.hpp \
+				include/Webserver.hpp
+
 SOURCEFOLDER= srcs/
 
 OSOURCEFOLDER= objects/
@@ -38,7 +54,20 @@ $(OSOURCEFOLDER)%.o: $(SOURCEFOLDER)%.cpp
 	clang++ $(FLAGS) -c $< -o $@ -I $(INCLUDEFOLDER)
 
 $(NAME): $(OSOURCEFOLDER) $(OSOURCE)
-	clang++ $(OSOURCE) -o $(NAME)
+	clang++  $(OSOURCE) -o $(NAME)
+
+test:
+		mkdir YoupiBanane
+		touch YoupiBanane/youpi.bad_extension
+		touch YoupiBanane/youpi.bla
+		mkdir YoupiBanane/nop
+		touch YoupiBanane/nop/youpi.bad_extension
+		touch YoupiBanane/nop/other.pouic
+		mkdir YoupiBanane/Yeah
+		touch YoupiBanane/Yeah/not_happy.bad_extension
+
+cleantest:
+	rm -rf YoupiBanane
 
 clean:
 	rm -rf $(OSOURCEFOLDER)

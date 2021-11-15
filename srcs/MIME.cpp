@@ -213,6 +213,7 @@ const std::map<std::string, std::vector<std::string> >	MIME::createMap()
 	m["shtml"].push_back("text/html");
 	m["shtml"].push_back("text/x-server-parsed-html");
 	m["ssi"].push_back("text/x-server-parsed-html");
+	m["svg"].push_back("image/svg+xml");
 	m["tar"].push_back("application/x-tar");
 	m["tcl"].push_back("application/x-tcl");
 	m["tcl"].push_back("text/x-script.tcl");
@@ -288,7 +289,7 @@ const std::string	&MIME::getType(const std::string &extension)
 	}
 	catch(const std::exception& e)
 	{
-		throw "Unsupported file extension!";
+		throw "406";
 	}
 }
 

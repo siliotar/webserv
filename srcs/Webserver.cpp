@@ -31,7 +31,7 @@ Server	*Webserver::defineServer(const std::string &msg, int port)
 {
 	size_t	pos;
 	if ((pos = msg.find("Host: ")) == std::string::npos)
-		return 0;
+		return _servers[0];
 	std::istringstream	ss(msg.substr(pos));
 	std::string		host;
 	ss >> host >> host;
@@ -69,12 +69,32 @@ void	Webserver::run()
 						--i;
 						continue ;
 					}
-					std::cout << user->getMessage() << std::endl;
-					Response response_user(user->getMessage(), defineServer(user->getMessage(), _sockets[i].socket->getPort()));
-					send(user->getSockFd(), response_user.getResponse().c_str(), response_user.getResponse().size(), 0);
-					// Server	*s = defineServer(user->getMessage(), _sockets[i].socket->getPort());
-					// const Location	*loc = s->getLocation("/images");
-					// std::cout << loc->getRoot() << std::endl;
+					try
+					{
+						while (user->readyToResponse())
+						{
+							std::string	msg = user->popMessage();
+							std::cout << GREEN <<  msg << RESET << std::endl;
+							Server	*s = defineServer(msg, _sockets[i].socket->getPort());
+							Response response_user(msg, s);
+							if (response_user.getConectionClose()) {
+								_sockets.remove(i);
+								--i;
+								break ;
+							}
+							if (response_user.getResponse().size() < 500)
+								std::cout << ORANGE << response_user.getResponse() << RESET << std::endl << std::endl << std::endl;
+							send(user->getSockFd(), response_user.getResponse().c_str(), response_user.getResponse().size(), 0);
+						}
+					}
+					catch (const char *e)
+					{
+							std::cout << e << std::endl;
+					}
+					catch(const std::exception& e)
+					{
+							std::cout << e.what() << std::endl;
+					}
 				}
 				_sockets[i].pollfd->revents = 0;
 			}

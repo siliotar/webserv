@@ -5,11 +5,14 @@
 #include <sstream>
 #include <string>
 #include <set>
+#include "Server.hpp"
 #include "../include/utils.hpp"
 #define VALID_VERSION "HTTP/1.1"
 #define A_Z "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #define a_z "abcdefghijklmnopqrstuvwxyz"
-#define NOT_DISPLAYED "\0\1\2\3\4\5\6\7\10\12\13\14\15\16\17\20\21\22\23\24\25\26\27\30\31\32\33\34\35\36\37\127"
+#define Num "0123456789"
+#define NOT_DISPLAYED "\0\1\2\3\4\5\6\7\10\12\13\14\16\17\20\21\22\23\24\25\26\27\30\31\32\33\34\35\36\37\127"
+
 
 
 
@@ -33,17 +36,26 @@ class Request {
 		std::string _referer;
 		std::vector<std::pair<std::string, double> > _tE;
 		std::string _UserAgent;
+		
+		Location	*_locationConfig;
 
-		std::map<std::string, std::string> _dataBaseMap;
+
+		std::string _postResponse;
 
 		std::string _response;
 		std::string _path;
 		std::string _location;
-		std::map<std::string, void (Request::*)(const std::string &)> _mapFoo;
 		std::string _version;
 		std::map<std::string, std::string> _param;
 
-		void operationInit( void );
+		static std::vector<std::string> 	_methods;
+		static std::map<std::string, void (Request::*)(const std::string &)> _mapFoo;
+
+		int _errorFlag;
+
+		static std::vector<std::string> responseMethod( void );
+
+		static std::map<std::string, void (Request::*)(const std::string &)> operationInit( void );
 
 		void parsPath( void );
  
@@ -86,6 +98,8 @@ class Request {
 		void TE(const std::string & str);
 
 		void UserAgent(const std::string & str);
+	
+		void anyHeaders(const std::string & str);
 
 	public:
 		Request(const std::string & content);
