@@ -33,14 +33,13 @@ std::map<std::string, void (Request::*)(const std::string &)> Request::operation
 	m["sec-ch-ua-platform:"] = &Request::anyHeaders;
 	m["Upgrade-Insecure-Requests:"] = &Request::anyHeaders;
 	m["Sec-Fetch-User:"] = &Request::anyHeaders;
+	m["Purpose:"] = &Request::anyHeaders;
+
 	return m;
 }
 
 std::vector<std::string>	Request::responseMethod( void )
 {
-	// _methods.push_back("GET");
-	// _methods.push_back("POST");
-	// _methods.push_back("DELETE");
 	std::vector<std::string> a;
 	a.push_back("PUT");
 	a.push_back("HEAD");
@@ -64,9 +63,9 @@ Request::Request(const std::string & content) : _errorFlag(200)
 		if (_response == "GET" || _response == "POST" || _response == "DELETE")
 			parsResponse(ss, str);
 		else if (std::find(_methods.begin(), _methods.end(), _response) == _methods.end())
-			throw "400";
+			throw "400::findmethod";
 		else
-			throw "405";
+			throw "405::findmethod";
 	}
 	catch (const char * error) {
 		std::cout << RED << error << RESET << std::endl;
@@ -101,7 +100,21 @@ void Request::parsResponse(std::istringstream & ss, std::string & str)
 		if (it != _mapFoo.end())
 			(this->*(it->second))(value);
 		else
-			throw ("400");
+		{
+			if (key.size() >= 2 && key[key.size() - 1] == ':')
+			{
+				std::string tmp = A_Z; 
+				tmp += a_z  + std::string(":-") + Num;
+				int w = key.find_first_not_of(tmp);
+				if (w != -1)
+				{
+					std::cout << w << " " << key << std::endl;
+					throw ("400::method1");
+				}
+			}
+			else
+				throw ("400::method");
+		}
 	}
 	if (_response == "POST")
 		while (ss)	{

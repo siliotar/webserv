@@ -27,7 +27,7 @@ _conectionClose(false), _directoryListingDefult(readFile("defaultPages/directory
 std::string Response::autoIndexOn( void ) {
 	DIR * dirp = opendir(_path.c_str());
 	if (dirp == 0)
-		return (""); //                									????????????
+		return ("400::autoindexOn");
 	dirent * dp;
 	std::string str = _directoryListingDefult;
 	str.replace(str.find("FILE_DIR"), strlen("FILE_DIR"), _oldPath);
