@@ -72,8 +72,15 @@ std::string Response::autoIndexOn( void ) {
 	return str;
 }
 
-std::string Response::autoIndexOff( void ) {
-	return (readFile(_path));
+void Response::autoIndexOff(struct stat & buff) {
+
+	std::string	index = _path;
+	if (index[index.size() - 1] != '/')
+		index += "/";
+	index += _locationConfig->getIndex();
+	if (stat(index.c_str(), &buff) < 0)
+		throw "404";
+	_locationConfig->setReplyBodyFromFile(200, index);
 }
 
 
@@ -90,15 +97,7 @@ void Response::responseGet() {
 		if (!S_ISDIR(buff.st_mode))
 			_locationConfig->setReplyBodyFromFile(200, _path);
 		else
-		{
-			std::string	index = _path;
-			if (index[index.size() - 1] != '/')
-				index += "/";
-			index += _locationConfig->getIndex();
-			if (stat(index.c_str(), &buff) < 0)
-				throw "404";
-			_locationConfig->setReplyBodyFromFile(200, index);
-		}
+			autoIndexOff(buff);
 	}
 }
 
@@ -110,9 +109,10 @@ void Response::responsePost() {
 		std::ofstream outfile(_path.c_str());
 		outfile << _postResponse;
 	}
-	if (S_ISREG(buff.st_mode)) {
+	if (S_ISREG(buff.st_mode))
 		_locationConfig->setReplyBody(200, readFile(_path), "text/html");
-	}
+	else
+		autoIndexOff(buff);
 }
 
 bool	Response::getConectionClose( void ) {

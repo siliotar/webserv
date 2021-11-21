@@ -21,20 +21,6 @@ std::map<std::string, void (Request::*)(const std::string &)> Request::operation
 	m["If-Range:"] = &Request::IfRange;
 	m["If-Unmodified-Since:"] = &Request::IfUnmodifiedSince;
 	m["Referer:"] = &Request::Referer;
-	m["UserAgent:"] = &Request::UserAgent;
-	m["Pragma:"] = &Request::anyHeaders;
-	m["Sec-Fetch-Site:"] = &Request::anyHeaders;
-	m["Sec-Fetch-Mode:"] = &Request::anyHeaders;
-	m["Sec-Fetch-Dest:"] = &Request::anyHeaders;
-	m["Cache-Control:"] = &Request::anyHeaders;
-	m["sec-ch-ua:"] = &Request::anyHeaders;
-	m["sec-ch-ua-mobile:"] = &Request::anyHeaders;
-	m["User-Agent:"] = &Request::anyHeaders;
-	m["sec-ch-ua-platform:"] = &Request::anyHeaders;
-	m["Upgrade-Insecure-Requests:"] = &Request::anyHeaders;
-	m["Sec-Fetch-User:"] = &Request::anyHeaders;
-	m["Purpose:"] = &Request::anyHeaders;
-
 	return m;
 }
 
@@ -81,8 +67,6 @@ Request::Request(const std::string & content, Server * serv) : _errorFlag(200), 
 
 void Request::parsResponse(std::istringstream & ss, std::string & str)
 {
-
-	
 	std::stringstream s;
 	_location = _path;
 	if (_version != VALID_VERSION)
@@ -107,15 +91,14 @@ void Request::parsResponse(std::istringstream & ss, std::string & str)
 			(this->*(it->second))(value);
 		else
 		{
+			
 			if (key.size() >= 2 && key[key.size() - 1] == ':')
 			{
 				std::string tmp = A_Z; 
 				tmp += a_z  + std::string(":-") + Num;
 				int w = key.find_first_not_of(tmp);
 				if (w != -1)
-				{
 					throw ("400::method1");
-				}
 			}
 			else
 				throw ("400::method");
@@ -136,7 +119,7 @@ void Request::parsPath() {
 	while ((a = _path.find("%20")) != std::string::npos)
 		_path.replace(a, 3, " ");	
 }
-// what do this information??
+
 void Request::accept(const std::string & str) {
 
 	std::string tmp; 
@@ -176,14 +159,9 @@ void Request::AcceptLanguage(const std::string & str) {
 
 void Request::Authorization(const std::string & str) {
 	std::vector<std::string> vec = split(str, " ,");
-	if (vec[0] == "Basic") {
-		
-	}
-	else if (vec[0] == "Digest") {
-		
-	}
-	else
+	if (vec[0] != "Basic" && vec[0] != "Digest")
 		throw ("400:Authorization");
+		
 }
 
 void Request::CacheControl(const std::string & str)
@@ -194,10 +172,7 @@ void Request::CacheControl(const std::string & str)
 
 void Request::Conection(const std::string & str)
 {
-	if (str == " close") {
-		throw("400:Conection");
-	}
-	else if (str != " keep-alive")
+	if (str == " close" || str != " keep-alive")
 		throw("400:Conection");
 }
 
@@ -213,9 +188,8 @@ void Request::From(const std::string & str) {
 	std::istringstream ss(str);
 	std::string tmp;
 	ss >> tmp;
-	if (ss) {
+	if (ss)
 		throw ("400:From");
-	}
 	_mail = tmp;
 }
 
@@ -292,12 +266,5 @@ void Request::TE(const std::string & str) {
 	}
 }
 
-void Request::UserAgent(const std::string & str){
-	_UserAgent = str;
-}
-
-void Request::anyHeaders(const std::string & str) {
-	std::string s = str;
-}
 Request::~Request() { }
 

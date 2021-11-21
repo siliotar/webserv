@@ -20,7 +20,7 @@ class Response : public Request {
 		
 		std::string autoIndexOn( void );
 
-		std::string autoIndexOff( void );
+		void autoIndexOff(struct stat &);
 		
 		void responsePost( void );
 
