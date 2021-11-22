@@ -1,6 +1,16 @@
-NAME= webserv
+NAME = webserv
 
-SOURCEFILES=	main.cpp \
+SRCDIR = srcs/
+
+OBJDIR = .obj/
+
+DEPDIR = .dep/
+
+INCLUDEDIR = include/
+
+FLAGS = -Wall -Werror -Wextra -std=c++98
+
+SOURCEFILES =	main.cpp \
 				Server.cpp \
 				Config.cpp \
 				utils.cpp \
@@ -16,48 +26,27 @@ SOURCEFILES=	main.cpp \
 				Response.cpp \
 				Request.cpp
 
-HEADERS=		include/Color.hpp \
-				include/Config.hpp \
-				include/ListenSocket.hpp \
-				include/Location.hpp \
-				include/MIME.hpp \
-				include/ReplyPages.hpp \
-				include/Request.hpp \
-				include/Response.hpp \
-				include/Server.hpp \
-				include/ServerConfig.hpp \
-				include/SocketContainer.hpp \
-				include/t_listen.hpp \
-				include/UserSocket.hpp \
-				include/utils.hpp \
-				include/Webserver.hpp
+SOURCE = $(addprefix $(SRCDIR), $(SOURCEFILES))
 
-SOURCEFOLDER= srcs/
+OBJ = $(addprefix $(OBJDIR), $(SOURCEFILES:.cpp=.o))
 
-OSOURCEFOLDER= objects/
-
-INCLUDEFOLDER= include/
-
-FLAGS=  -Wall  -Wextra -std=c++98
-
-SOURCE= $(addprefix $(SOURCEFOLDER), $(SOURCEFILES))
-
-OSOURCE= $(addprefix $(OSOURCEFOLDER), $(SOURCEFILES:.cpp=.o))
+DEP = $(addprefix $(DEPDIR), $(SOURCEFILES:.cpp=.d))
 
 all: $(NAME)
 
-$(OSOURCEFOLDER):
-	mkdir objects
-	mkdir objects/commands
+$(DEPDIR)%.d: $(SRCDIR)%.cpp
+	mkdir -p $(dir $@)
+	clang++ -MT $(<:$(SRCDIR)%.cpp=$(OBJDIR)%.o) -MM $< > $@ -I $(INCLUDEDIR)
 
-$(OSOURCEFOLDER)%.o: $(SOURCEFOLDER)%.cpp
-	clang++ $(FLAGS) -c $< -o $@ -I $(INCLUDEFOLDER)
+$(OBJDIR)%.o: $(SRCDIR)%.cpp
+	mkdir -p $(dir $@)
+	clang++ $(FLAGS) -c $< -o $@ -I $(INCLUDEDIR)
 
-$(NAME): $(OSOURCEFOLDER) $(OSOURCE)
-	clang++  $(OSOURCE) -o $(NAME)
+$(NAME): $(DEP) $(OBJ)
+	clang++  $(OBJ) -o $(NAME)
 
 clean:
-	rm -rf $(OSOURCEFOLDER)
+	rm -rf $(OBJDIR) $(DEPDIR)
 
 fclean: clean
 	rm -rf $(NAME)
@@ -65,3 +54,5 @@ fclean: clean
 re: fclean all
 
 .PHONY: clean fclean re all
+
+-include $(DEP)

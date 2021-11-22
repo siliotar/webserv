@@ -32,8 +32,9 @@
 *.app
 
 # Other
-objects
 .vscode
 webserv
 YoupiBanane
 *.dSYM
+.DS_Store
+.dep
