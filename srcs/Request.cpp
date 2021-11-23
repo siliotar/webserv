@@ -21,6 +21,9 @@ std::map<std::string, void (Request::*)(const std::string &)> Request::operation
 	m["If-Range:"] = &Request::IfRange;
 	m["If-Unmodified-Since:"] = &Request::IfUnmodifiedSince;
 	m["Referer:"] = &Request::Referer;
+	m["Content-Length:"] = &Request::ContentLength;
+	m["Content-Type:"] = &Request::ContentType;
+
 	return m;
 }
 
@@ -63,6 +66,8 @@ Request::Request(const std::string & content, Server * serv) : _errorFlag(200), 
 		std::cout << RED << error << RESET << std::endl;
 		_errorFlag = atoi(error);
 	}
+
+	_cgiArg = "./www/a.out";
 }
 
 void Request::parsResponse(std::istringstream & ss, std::string & str)
@@ -71,7 +76,8 @@ void Request::parsResponse(std::istringstream & ss, std::string & str)
 	_location = _path;
 	if (_version != VALID_VERSION)
 		throw ("505:version");
-	while (ss) {
+	while (ss) 
+	{
 		std::getline(ss, str);
 		if (str == "\r\n" || str == "\n" || str == "\r" || str == "")
 			break;
@@ -91,7 +97,6 @@ void Request::parsResponse(std::istringstream & ss, std::string & str)
 			(this->*(it->second))(value);
 		else
 		{
-			
 			if (key.size() >= 2 && key[key.size() - 1] == ':')
 			{
 				std::string tmp = A_Z; 
@@ -155,6 +160,16 @@ void Request::AcceptLanguage(const std::string & str) {
 	if (str.find_first_not_of(tmp) != std::string::npos)
 		throw("406:AcceptLanguage");
 	_acceptLanguage = value_prec(str); 
+}
+
+void Request::ContentLength(const std::string & str)
+{
+	_postContentLength = str;
+}
+
+void Request::ContentType(const std::string & str)
+{
+	_postContentType = str;
 }
 
 void Request::Authorization(const std::string & str) {
@@ -266,5 +281,5 @@ void Request::TE(const std::string & str) {
 	}
 }
 
-Request::~Request() { }
+Request::~Request() {}
 

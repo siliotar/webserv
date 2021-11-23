@@ -11,6 +11,7 @@
 #include "Server.hpp"
 #include "Color.hpp"
 #include <cstdio>
+#include <unistd.h>
 class Response : public Request {
 
 	private:
@@ -27,6 +28,8 @@ class Response : public Request {
 		void responseGet ( void );
 		
 		void responseDelete( void );
+
+		std::string cgi( void );
 
 		Response();
 

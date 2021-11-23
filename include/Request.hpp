@@ -37,12 +37,13 @@ class Request {
 		std::string _referer;
 		std::vector<std::pair<std::string, double> > _tE;
 		std::string _UserAgent;
-		
+
+		std::string	_cgiArg;
+
 		Location	*_locationConfig;
-
-
 		std::string _postResponse;
-
+		std::string _postContentType;
+		std::string _postContentLength;
 		std::string _response;
 		std::string _path;
 		std::string _location;
@@ -102,6 +103,10 @@ class Request {
 		void UserAgent(const std::string & str);
 	
 		void anyHeaders(const std::string & str);
+
+		void ContentLength(const std::string & str);
+
+		void ContentType(const std::string & str);
 
 		Request();
 
