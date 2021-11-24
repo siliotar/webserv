@@ -2,6 +2,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include "Color.hpp"
 #include <sstream>
 #include <string>
 #include <set>
@@ -38,7 +39,7 @@ class Request {
 		std::vector<std::pair<std::string, double> > _tE;
 		std::string _UserAgent;
 
-		std::string	_cgiArg;
+		std::vector<std::string>	_cgiArg;
 
 		Location	*_locationConfig;
 		std::string _postResponse;

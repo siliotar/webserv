@@ -164,64 +164,81 @@ std::string Response::cgi( void )
 
 	std::vector<std::string> vectorString;
 
-	vectorString.push_back("SERVER_SOFTWARE=\"BATYANDDED\"");
-	vectorString.push_back("SERVER_PROTOCOL=\"HTTP/1.1\"");
-	vectorString.push_back("GATEWAY_INTERFACE:=\"CGI/1.1\"");
-	vectorString.push_back("SERVER_NAME=\"" + _host + "\"");
-	vectorString.push_back("SERVER_PORT=\"" + _port + "\"");
-	vectorString.push_back("REQUEST_METHOD=\"" + _response + "\"");
-	vectorString.push_back("PATH_INFO=\"" + _path + "\"");
-	vectorString.push_back("PATH_TRANSLATED=\"" + _path + "\"");
-	vectorString.push_back("SCRIPT_NAME=\"" + _path + "\"");
-	vectorString.push_back("QUERY_STRING=\"" + _postResponse + "\"");
-	vectorString.push_back("REMOTE_HOST=\"" + _host + "\"");
-	vectorString.push_back("REMOTE_ADDR=\"127.0.0.1\"");
+	vectorString.push_back("SERVER_SOFTWARE=BATYANDDED");
+	vectorString.push_back("SERVER_PROTOCOL=HTTP/1.1");
+	vectorString.push_back("GATEWAY_INTERFACE:=CGI/1.1");
+	vectorString.push_back("SERVER_NAME=" + _host);
+	vectorString.push_back("SERVER_PORT=" + _port);
+	vectorString.push_back("REQUEST_METHOD=" + _response);
+	vectorString.push_back("PATH_TRANSLATED=" + _path);
+	// vectorString.push_back("SCRIPT_NAME=/www/cgi_tester");
+	// vectorString.push_back("QUERY_STRING=" + _postResponse);
+	vectorString.push_back("REMOTE_HOST=" + _host);
+	vectorString.push_back("REMOTE_ADDR=127.0.0.1");
 	if (_response == "POST")
 	{	
-		vectorString.push_back("CONTENT_TYPE=\"" + _postContentType + "\"");
-		vectorString.push_back("CONTENT_LENGTH=\"" + _postContentLength + "\"");
+		vectorString.push_back("CONTENT_TYPE=" + _postContentType);
+		vectorString.push_back("CONTENT_LENGTH=" + _postContentLength);
+		std::cout << _postContentLength << std::endl;
 	}
+	vectorString.push_back("PATH_INFO=/www/cgi_tester");
+
+	sort(vectorString.begin(), vectorString.end());
 
 	char **envp = new char *[vectorString.size() + 1];
 	for (size_t i = 0; i < vectorString.size(); i++)
-		envp[i] = (char *)vectorString[i].c_str();
+		envp[i] = strdup(vectorString[i].c_str());
 
 	envp[vectorString.size()] = 0;
 
 	pid_t pid;
-	int fd[4];
-	int old_fd0 = dup(0);
-	// int old_fd1 = dup(1);
-
+	int fd[2];
+	int fd_2[2];
 	pipe(fd);
-	pipe(fd + 2);
-	dup2(fd[2], 0);
-	std::cout << _cgiArg << std::endl;
-	pid = fork();
-	if (pid == 0)
-	{	
-		dup2(fd[1], 1);
-
-		if (execve(_cgiArg.c_str(), 0, envp) < 0)
-			write(2, std::to_string(errno).c_str(), 2);
-		exit(0);
-	}
-	write(fd[2], "qwe", 3);
-	close(fd[2]);
-	wait(0);
-	dup2(old_fd0, 0);
-	dup2(fd[0], 0);
-	std::istringstream ss(0);
-	dup2(old_fd0, 0);
-	std::cout << "FFFFFFFFFFFFFFFFFF" << std::endl;
-	while (ss)
+	int old_fd0 = dup(0);
+	int old_fd1 = dup(1);
+	
+	for (size_t i = 0; i < _cgiArg.size(); i++)
 	{
-		std::string str;
-		std::getline(ss, str);
-		std::cout << str << std::endl;
+		pipe(fd_2);
+		if (i == 0)
+		{
+			write(fd[1], _postResponse.c_str(), _postResponse.size());
+			close(fd[1]);
+		}
+		pid = fork();
+		if (pid == 0)
+		{	
+			if (dup2(fd_2[1], 1) < 0)
+				write(2, "123\n", 4);
+			if (dup2(fd[0], 0))
+				write(2, "abcd\n", 4);
+			if (execve(_cgiArg[i].c_str(), 0, envp) < 0)
+				write(2, std::to_string(errno).c_str(), 2);
+			exit(0);
+		}
+		wait(0);
+		close(fd_2[1]);
+		close(fd[0]);
+		fd[0] = fd_2[0];
+		fd[1] = fd_2[1];
+		close(fd[1]);
 	}
+	dup2(old_fd1, 1);
+	dup2(old_fd0, 0);
+	char *str;
+	close(fd[1]);
+	// while (c_get_next_line(fd[0], &str))
+	// {
+		// std::cout << str << std::endl;
+		// free(str);
+	// }
+	// close(fd[0]);
+	// std::cout << str << std::endl;
+	free(str);
+
 	delete [] envp;
-	return  ("q");
+	return  ("");
 }
 Response::~Response() { }
 

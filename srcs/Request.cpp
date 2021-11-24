@@ -1,5 +1,5 @@
 #include "Request.hpp"
-#include "Color.hpp"
+
 
 std::map<std::string, void (Request::*)(const std::string &)> Request::_mapFoo = Request::operationInit();
 
@@ -67,7 +67,12 @@ Request::Request(const std::string & content, Server * serv) : _errorFlag(200), 
 		_errorFlag = atoi(error);
 	}
 
-	_cgiArg = "./www/a.out";
+	_cgiArg.push_back("./www/cgi_tester");
+	// _cgiArg.push_back("./www/cgi_tester");
+	// _cgiArg.push_back("./www/cgi_tester");
+	// _cgiArg.push_back("./www/cgi_tester");
+	// _cgiArg.push_back("./www/test_cgi_my");
+
 }
 
 void Request::parsResponse(std::istringstream & ss, std::string & str)
@@ -164,12 +169,12 @@ void Request::AcceptLanguage(const std::string & str) {
 
 void Request::ContentLength(const std::string & str)
 {
-	_postContentLength = str;
+	_postContentLength = str.substr(1);
 }
 
 void Request::ContentType(const std::string & str)
 {
-	_postContentType = str;
+	_postContentType = str.substr(1);
 }
 
 void Request::Authorization(const std::string & str) {

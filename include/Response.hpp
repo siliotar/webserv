@@ -11,6 +11,7 @@
 #include "Server.hpp"
 #include "Color.hpp"
 #include <cstdio>
+#include "utils.hpp"
 #include <unistd.h>
 class Response : public Request {
 

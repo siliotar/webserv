@@ -24,7 +24,8 @@ SOURCEFILES =	main.cpp \
 				UserSocket.cpp \
 				SocketContainer.cpp \
 				Response.cpp \
-				Request.cpp
+				Request.cpp \
+				c_function.cpp
 
 SOURCE = $(addprefix $(SRCDIR), $(SOURCEFILES))
 
@@ -54,5 +55,9 @@ fclean: clean
 re: fclean all
 
 .PHONY: clean fclean re all
+
+q:
+	clang++ www/test.cpp -o www/a.out
+	clang++ www/test_mulicgi.cpp -o www/test_cgi_my
 
 -include $(DEP)
