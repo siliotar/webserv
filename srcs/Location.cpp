@@ -155,6 +155,14 @@ bool	Location::parseLocation(const std::vector<std::string> &splitedLine)
 		_redirection = splitedLine[1];
 		return true;
 	}
+	if (splitedLine[0] == "cgi")
+	{
+		if (splitedLine.size() < 2)
+			throw "Wrong config!";
+		for (size_t i = 1; i < splitedLine.size(); i++)
+			_CGI.push_back(splitedLine[i]);
+		return true;
+	}
 	return false;
 }
 
@@ -166,4 +174,19 @@ void	Location::setHeader(const std::string &key, const std::string &value)
 void	Location::clearHeaders()
 {
 	_errorPages.clearHeaders();
+}
+
+const std::string	&Location::getRedirection() const
+{
+	return _redirection;
+}
+
+void	Location::allowMethod(const std::string &method)
+{
+	_allowMethods.push_back(method);
+}
+
+const std::vector<std::string>	&Location::getCGI() const
+{
+	return _CGI;
 }

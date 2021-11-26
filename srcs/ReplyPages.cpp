@@ -90,10 +90,7 @@ const std::string	ReplyPages::getReply(unsigned short reply) const
 	{
 		_replyBodys.at(reply);
 		ss << "Content-Type: " << _replyBodys.at(reply).type << std::endl;
-		if (_replyBodys.at(reply).type == "image/gif")
-			ss << "Content-Length: " << _replyBodys.at(reply).body.length() / 8 << std::endl;
-		else
-			ss << "Content-Length: " << _replyBodys.at(reply).body.length() << std::endl;
+		ss << "Content-Length: " << _replyBodys.at(reply).body.length() << std::endl;
 	}
 	catch(const std::exception& e)
 	{}
