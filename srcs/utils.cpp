@@ -30,7 +30,8 @@ std::vector<std::string>	split(std::string str, const std::string &delim)
 	}
 	return ret;
 }
-
+#include "Color.hpp"
+#include <iostream>
 std::vector<std::pair<std::string, double> > value_prec(const std::string & str)
 {
     std::vector<std::pair<std::string, double> > result;
