@@ -16,6 +16,11 @@ _conectionClose(false), _directoryListingDefult(readFile("defaultPages/directory
 		_oldPath.erase(_oldPath.find("?"));
 
 	}
+	if (_locationConfig->getRedirection().size() > 0)
+	{
+		_locationConfig->setHeader("Location", _locationConfig->getRedirection());
+		_errorFlag = 301;
+	}
 	if (_errorFlag == 200)
 	{
 		try 

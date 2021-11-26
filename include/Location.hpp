@@ -16,6 +16,7 @@ class Location
 		std::vector<std::string>		_allowMethods;
 		std::string						_index;
 		std::string						_redirection;
+		std::vector<std::string>		_CGI;
 
 	private:
 		Location(const Location& copy);
@@ -35,6 +36,8 @@ class Location
 		const std::string				&getIndex() const;
 		std::string						getPath(const std::string &path) const;
 		const std::string				getReply(unsigned short reply) const;
+		const std::string				&getRedirection() const;
+		const std::vector<std::string>	&getCGI() const;
 
 		// Setters
 
@@ -44,6 +47,8 @@ class Location
 		void							setReplyBodyFromFile(unsigned short reply, const std::string &bodyPath);
 		void							setHeader(const std::string &key, const std::string &value);
 		void							clearHeaders();
+		void							allowMethod(const std::string &method);
+
 		// Other
 		
 		bool	parseLocation(const std::vector<std::string> &splitedLine);

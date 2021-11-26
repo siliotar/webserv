@@ -56,10 +56,8 @@ std::string	Config::getServer(std::string &config)
 
 Config::~Config()
 {
-	// for (size_t i = 0; i < _servers.size(); ++i)
-	// {
-	// 	delete _servers[i];
-	// }
+	for (size_t i = 0; i < _servers.size(); ++i)
+		delete _servers[i];
 }
 
 const std::vector<ServerConfig *>	Config::getServers() const

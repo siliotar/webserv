@@ -22,6 +22,7 @@ void		SocketContainer::add(Socket *socket)
 void		SocketContainer::remove(size_t idx)
 {
 	close(_sockets[idx]->getSockFd());
+	delete _sockets[idx];
 	_sockets.erase(_sockets.begin() + idx);
 	_pollfds.erase(_pollfds.begin() + idx);
 }
