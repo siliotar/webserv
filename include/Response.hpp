@@ -10,51 +10,39 @@
 #include <iomanip>
 #include "Server.hpp"
 #include "Color.hpp"
-
+#include <cstdio>
+#include "utils.hpp"
+#include <unistd.h>
 class Response : public Request {
 
 	private:
 		bool						_conectionClose;
 		const std::string 			_directoryListingDefult;
-		Server						*_server;
 		std::string					_oldPath;
 		
-	public:
-		Response(const std::string & request, Server * server);
-		// If autoindex on, open directory in html 
 		std::string autoIndexOn( void );
 
-		std::string autoIndexOff( void );
-
-		std::string postDone( void );
+		void autoIndexOff(struct stat &);
 		
 		void responsePost( void );
-
-		bool getConectionClose( void );
 
 		void responseGet ( void );
 		
 		void responseDelete( void );
-		
-		void acceptRanges(const std::string & str);
 
-		void age(const std::string & str);
+		std::string cgi( void );
 
-		void alternates(const std::string & str);
+		Response();
 
-		void contentDisposition ();
+		Response(const Response &);
 
-		void eTag();
+		Response & operator=(const Response &);
 
-		void location();
+	public:
+		Response(const std::string & request, Server * server);
 
-		void publicR( void );
-
-		void retryAfter( void );
-
-		void server( void );
-
-		void vary();
-
+		bool 		getConectionClose( void );
 		std::string getResponse( void );
+
+		~Response();
 };

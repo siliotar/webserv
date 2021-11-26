@@ -2,6 +2,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include "Color.hpp"
 #include <sstream>
 #include <string>
 #include <set>
@@ -19,6 +20,7 @@
 class Request {
 
 	protected:
+
 		std::vector<std::pair<std::string, double> > _accept;
 		std::vector<std::pair<std::string, double> > _acceptEncoding;
 		std::vector<std::pair<std::string, double> > _acceptLanguage;
@@ -36,12 +38,13 @@ class Request {
 		std::string _referer;
 		std::vector<std::pair<std::string, double> > _tE;
 		std::string _UserAgent;
-		
+
+		std::vector<std::string>	_cgiArg;
+
 		Location	*_locationConfig;
-
-
 		std::string _postResponse;
-
+		std::string _postContentType;
+		std::string _postContentLength;
 		std::string _response;
 		std::string _path;
 		std::string _location;
@@ -51,7 +54,8 @@ class Request {
 		static std::vector<std::string> 	_methods;
 		static std::map<std::string, void (Request::*)(const std::string &)> _mapFoo;
 
-		int _errorFlag;
+		int 				_errorFlag;
+		Server				*_server;
 
 		static std::vector<std::string> responseMethod( void );
 
@@ -101,8 +105,19 @@ class Request {
 	
 		void anyHeaders(const std::string & str);
 
+		void ContentLength(const std::string & str);
+
+		void ContentType(const std::string & str);
+
+		Request();
+
+		Request(const Request &);
+
+		Request & operator=(const Request &);
+
 	public:
-		Request(const std::string & content);
+		Request(const std::string & content, Server *);
+
 		virtual ~Request();
 
 };

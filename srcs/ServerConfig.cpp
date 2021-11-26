@@ -55,8 +55,14 @@ ServerConfig::ServerConfig(const std::string &config)
 		_root = "/";
 	std::map<std::string, Location *>::iterator		it = _locations.begin();
 	for (; it != _locations.end(); ++it)
+	{
 		if (it->second->getRoot() == "")
 			it->second->setRoot(_root);
+		std::vector<std::string>::iterator	m = _allowMethods.begin();
+		for (; m != _allowMethods.end(); ++m)
+			if (std::find(it->second->getAllowMethods().begin(), it->second->getAllowMethods().end(), *m) == it->second->getAllowMethods().end())
+				it->second->allowMethod(*m);
+	}
 }
 
 ServerConfig::~ServerConfig()

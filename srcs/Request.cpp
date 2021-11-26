@@ -1,5 +1,5 @@
 #include "Request.hpp"
-#include "Color.hpp"
+
 
 std::map<std::string, void (Request::*)(const std::string &)> Request::_mapFoo = Request::operationInit();
 
@@ -21,26 +21,14 @@ std::map<std::string, void (Request::*)(const std::string &)> Request::operation
 	m["If-Range:"] = &Request::IfRange;
 	m["If-Unmodified-Since:"] = &Request::IfUnmodifiedSince;
 	m["Referer:"] = &Request::Referer;
-	m["UserAgent:"] = &Request::UserAgent;
-	m["Pragma:"] = &Request::anyHeaders;
-	m["Sec-Fetch-Site:"] = &Request::anyHeaders;
-	m["Sec-Fetch-Mode:"] = &Request::anyHeaders;
-	m["Sec-Fetch-Dest:"] = &Request::anyHeaders;
-	m["Cache-Control:"] = &Request::anyHeaders;
-	m["sec-ch-ua:"] = &Request::anyHeaders;
-	m["sec-ch-ua-mobile:"] = &Request::anyHeaders;
-	m["User-Agent:"] = &Request::anyHeaders;
-	m["sec-ch-ua-platform:"] = &Request::anyHeaders;
-	m["Upgrade-Insecure-Requests:"] = &Request::anyHeaders;
-	m["Sec-Fetch-User:"] = &Request::anyHeaders;
+	m["Content-Length:"] = &Request::ContentLength;
+	m["Content-Type:"] = &Request::ContentType;
+
 	return m;
 }
 
 std::vector<std::string>	Request::responseMethod( void )
 {
-	// _methods.push_back("GET");
-	// _methods.push_back("POST");
-	// _methods.push_back("DELETE");
 	std::vector<std::string> a;
 	a.push_back("PUT");
 	a.push_back("HEAD");
@@ -52,7 +40,7 @@ std::vector<std::string>	Request::responseMethod( void )
 	return a;
 }
 
-Request::Request(const std::string & content) : _errorFlag(200)
+Request::Request(const std::string & content, Server * serv) : _errorFlag(200), _server(serv)
 {
 	std::string str;
 	std::istringstream ss(content);
@@ -60,31 +48,43 @@ Request::Request(const std::string & content) : _errorFlag(200)
 	std::istringstream s(str);
 	s >> _response >> _path >> _version;
 	parsPath();
+	_locationConfig = _server->getLocation(_path);
 	try {
+		std::vector<std::string>::const_iterator it_begin = _locationConfig->getAllowMethods().begin();
+		std::vector<std::string>::const_iterator it_end = _locationConfig->getAllowMethods().end();
+		std::vector<std::string>::const_iterator it_f = std::find(it_begin, it_end, _response);
+		if (it_f == it_end)
+			throw "405::findmethod";
 		if (_response == "GET" || _response == "POST" || _response == "DELETE")
 			parsResponse(ss, str);
 		else if (std::find(_methods.begin(), _methods.end(), _response) == _methods.end())
-			throw "400";
+			throw "400::findmethod";
 		else
-			throw "405";
+			throw "405::findmethod";
 	}
 	catch (const char * error) {
 		std::cout << RED << error << RESET << std::endl;
 		_errorFlag = atoi(error);
 	}
+
+	_cgiArg.push_back("./www/cgi_tester");
+	// _cgiArg.push_back("./www/cgi_tester");
+	// _cgiArg.push_back("./www/cgi_tester");
+	// _cgiArg.push_back("./www/cgi_tester");
+	// _cgiArg.push_back("./www/test_cgi_my");
+
 }
 
 void Request::parsResponse(std::istringstream & ss, std::string & str)
 {
-
-	
 	std::stringstream s;
 	_location = _path;
 	if (_version != VALID_VERSION)
 		throw ("505:version");
-	while (ss) {
+	while (ss) 
+	{
 		std::getline(ss, str);
-		if (str == "\r\n" || str == "\n" || str == "\r")
+		if (str == "\r\n" || str == "\n" || str == "\r" || str == "")
 			break;
 		s.clear();
 		if (str[str.size() - 1] == '\r')
@@ -101,14 +101,26 @@ void Request::parsResponse(std::istringstream & ss, std::string & str)
 		if (it != _mapFoo.end())
 			(this->*(it->second))(value);
 		else
-			throw ("400");
+		{
+			if (key.size() >= 2 && key[key.size() - 1] == ':')
+			{
+				std::string tmp = A_Z; 
+				tmp += a_z  + std::string(":-") + Num;
+				int w = key.find_first_not_of(tmp);
+				if (w != -1)
+					throw ("400::method1");
+			}
+			else
+				throw ("400::method");
+		}
 	}
 	if (_response == "POST")
-		while (ss)	{
+		while (1) {
 			std::getline (ss, str);
-			if (str != "\n")
-				_postResponse += str;
-	}
+			if (!ss)
+				break;
+			_postResponse += str + '\n';
+		}
 }
 
 
@@ -117,7 +129,7 @@ void Request::parsPath() {
 	while ((a = _path.find("%20")) != std::string::npos)
 		_path.replace(a, 3, " ");	
 }
-// what do this information??
+
 void Request::accept(const std::string & str) {
 
 	std::string tmp; 
@@ -159,16 +171,21 @@ void Request::AcceptLanguage(const std::string & str) {
 	_acceptLanguage = value_prec(str); 
 }
 
+void Request::ContentLength(const std::string & str)
+{
+	_postContentLength = str.substr(1);
+}
+
+void Request::ContentType(const std::string & str)
+{
+	_postContentType = str.substr(1);
+}
+
 void Request::Authorization(const std::string & str) {
 	std::vector<std::string> vec = split(str, " ,");
-	if (vec[0] == "Basic") {
-		
-	}
-	else if (vec[0] == "Digest") {
-		
-	}
-	else
+	if (vec[0] != "Basic" && vec[0] != "Digest")
 		throw ("400:Authorization");
+		
 }
 
 void Request::CacheControl(const std::string & str)
@@ -179,10 +196,7 @@ void Request::CacheControl(const std::string & str)
 
 void Request::Conection(const std::string & str)
 {
-	if (str == " close") {
-		throw("400:Conection");
-	}
-	else if (str != " keep-alive")
+	if (str == " close" || str != " keep-alive")
 		throw("400:Conection");
 }
 
@@ -198,9 +212,8 @@ void Request::From(const std::string & str) {
 	std::istringstream ss(str);
 	std::string tmp;
 	ss >> tmp;
-	if (ss) {
+	if (ss)
 		throw ("400:From");
-	}
 	_mail = tmp;
 }
 
@@ -277,12 +290,5 @@ void Request::TE(const std::string & str) {
 	}
 }
 
-void Request::UserAgent(const std::string & str){
-	_UserAgent = str;
-}
-
-void Request::anyHeaders(const std::string & str) {
-	std::string s = str;
-}
-Request::~Request() { }
+Request::~Request() {}
 

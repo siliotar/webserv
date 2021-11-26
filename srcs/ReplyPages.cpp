@@ -90,7 +90,7 @@ const std::string	ReplyPages::getReply(unsigned short reply) const
 	{
 		_replyBodys.at(reply);
 		ss << "Content-Type: " << _replyBodys.at(reply).type << std::endl;
-		ss << "Content-Length: " << _replyBodys.at(reply).body.size() << std::endl;
+		ss << "Content-Length: " << _replyBodys.at(reply).body.length() << std::endl;
 	}
 	catch(const std::exception& e)
 	{}
@@ -100,7 +100,7 @@ const std::string	ReplyPages::getReply(unsigned short reply) const
 	ss << std::endl;
 	try
 	{
-		ss << _replyBodys.at(reply).body;
+		ss << _replyBodys.at(reply).body << "\n";
 	}
 	catch(const std::exception& e)
 	{}

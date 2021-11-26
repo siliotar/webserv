@@ -6,6 +6,7 @@ class Socket;
 #include <sstream>
 #include <queue>
 #include <sys/socket.h>
+#include <cstdlib>
 #include "Socket.hpp"
 
 class UserSocket : public Socket
@@ -19,7 +20,7 @@ class UserSocket : public Socket
 		UserSocket(const UserSocket& copy);
 		UserSocket	&operator=(const UserSocket& other);
 
-		bool				completeMessage() const;
+		size_t				completeMessage() const;
 	public:
 		UserSocket(int fd, int port);
 		virtual ~UserSocket();
