@@ -231,7 +231,7 @@ std::string Response::cgi( void )
 	}
 	dup2(old_fd1, 1);
 	dup2(old_fd0, 0);
-	char *str;
+	// char *str;
 	close(fd[1]);
 	// while (c_get_next_line(fd[0], &str))
 	// {
@@ -240,7 +240,7 @@ std::string Response::cgi( void )
 	// }
 	// close(fd[0]);
 	// std::cout << str << std::endl;
-	free(str);
+	// free(str);
 
 	delete [] envp;
 	return  ("");

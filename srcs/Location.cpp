@@ -163,6 +163,16 @@ bool	Location::parseLocation(const std::vector<std::string> &splitedLine)
 			_CGI.push_back(splitedLine[i]);
 		return true;
 	}
+	if (splitedLine[0] == "add_header")
+	{
+		if (splitedLine.size() < 3)
+			throw "Wrong config!";
+		if (splitedLine[1] != "Set-Cookie")
+			throw "Wrong config!";
+		for (size_t i = 2; i < splitedLine.size(); i++)
+			_cookie.push_back(splitedLine[i]);
+		return true;
+	}
 	return false;
 }
 
@@ -189,4 +199,9 @@ void	Location::allowMethod(const std::string &method)
 const std::vector<std::string>	&Location::getCGI() const
 {
 	return _CGI;
+}
+
+const std::vector<std::string>	&Location::getCookie() const
+{
+	return _cookie;
 }

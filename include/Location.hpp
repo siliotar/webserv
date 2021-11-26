@@ -17,6 +17,7 @@ class Location
 		std::string						_index;
 		std::string						_redirection;
 		std::vector<std::string>		_CGI;
+		std::vector<std::string>		_cookie;
 
 	private:
 		Location(const Location& copy);
@@ -38,6 +39,7 @@ class Location
 		const std::string				getReply(unsigned short reply) const;
 		const std::string				&getRedirection() const;
 		const std::vector<std::string>	&getCGI() const;
+		const std::vector<std::string>	&getCookie() const;
 
 		// Setters
 
