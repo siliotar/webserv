@@ -30,6 +30,7 @@ class Request {
 		std::string _mail;
 		std::string _host;
 		std::string _port;
+		std::vector<std::string> _cookieData;
 		std::vector<std::string> _ifMatch;
 		std::string _dataIfModifiedSince;
 		std::vector<std::string> _ifNoneMatch;
@@ -106,6 +107,8 @@ class Request {
 		void anyHeaders(const std::string & str);
 
 		void ContentLength(const std::string & str);
+
+		void SetCookie(const std::string & str);
 
 		void ContentType(const std::string & str);
 

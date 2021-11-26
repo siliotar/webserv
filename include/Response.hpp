@@ -13,6 +13,8 @@
 #include <cstdio>
 #include "utils.hpp"
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 class Response : public Request {
 
 	private:

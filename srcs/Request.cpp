@@ -23,6 +23,8 @@ std::map<std::string, void (Request::*)(const std::string &)> Request::operation
 	m["Referer:"] = &Request::Referer;
 	m["Content-Length:"] = &Request::ContentLength;
 	m["Content-Type:"] = &Request::ContentType;
+	m["Cookie:"] = &Request::SetCookie;
+
 
 	return m;
 }
@@ -49,6 +51,10 @@ Request::Request(const std::string & content, Server * serv) : _errorFlag(200), 
 	s >> _response >> _path >> _version;
 	parsPath();
 	_locationConfig = _server->getLocation(_path);
+	_cookieData.push_back("asff");
+	_cookieData.push_back("124556");
+
+	// _cookieData = _server->getCookie();
 	try {
 		std::vector<std::string>::const_iterator it_begin = _locationConfig->getAllowMethods().begin();
 		std::vector<std::string>::const_iterator it_end = _locationConfig->getAllowMethods().end();
@@ -114,7 +120,7 @@ void Request::parsResponse(std::istringstream & ss, std::string & str)
 				throw ("400::method");
 		}
 	}
-	if (_response == "POST")
+	if (_response == "POST" || _response == "GET")
 		while (1) {
 			std::getline (ss, str);
 			if (!ss)
@@ -143,10 +149,6 @@ void Request::AcceptEncoding(const std::string & str) {
 	std::vector<std::pair<std::string, double> > tmp;
 	tmp = value_prec(str);
 	_acceptEncoding.insert(_acceptEncoding.end(), tmp.begin(), tmp.end());
-	for (int i = 0; i < _acceptEncoding.size(); i++)
-	{
-		std::cout << "|" << _acceptEncoding[i].first << " " << _acceptEncoding[i].second << "|" << std::endl;
-	}
 	std::set<std::string> correct_str;
 	correct_str.insert("gzip");
 	correct_str.insert("compress");
@@ -192,6 +194,11 @@ void Request::CacheControl(const std::string & str)
 {
 	std::vector<std::string> tmp;
 	_cacheControl.push_back(str);
+}
+
+void Request::SetCookie(const std::string & str)
+{
+	std::vector<std::string> tmp = split(str, " ;");
 }
 
 void Request::Conection(const std::string & str)

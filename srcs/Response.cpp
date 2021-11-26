@@ -30,19 +30,16 @@ _conectionClose(false), _directoryListingDefult(readFile("defaultPages/directory
 				throw("405:response");
 			if (_response == "GET")
 			{
-				cgi();
+				// cgi();
 				responseGet();
 			}
 			else if (_response == "POST")
 			{
 				responsePost();
-				cgi();
+				// cgi();
 			}
 			else if (_response == "DELETE")
-			{
-				cgi();
 				responseDelete();
-			}
 		}
 		catch (const char *str) 
 		{
@@ -159,6 +156,11 @@ std::string Response::getResponse( void )
 	}
 	else
 		_locationConfig->setHeader("Connection", "keep-alive");
+	if (!_cookieData.empty())
+	{
+		for(size_t i = 0; i < _cookieData.size(); ++i)
+			_locationConfig->setHeader("Set-Cookie", _cookieData[i]);
+	}
 	return (_locationConfig->getReply(_errorFlag));
 }
 
@@ -214,12 +216,13 @@ std::string Response::cgi( void )
 		pid = fork();
 		if (pid == 0)
 		{	
+			 char *const * a = 0;
 			if (dup2(fd_2[1], 1) < 0)
 				write(2, "123\n", 4);
 			if (dup2(fd[0], 0))
 				write(2, "abcd\n", 4);
-			if (execve(_cgiArg[i].c_str(), 0, envp) < 0)
-				write(2, std::to_string(errno).c_str(), 2);
+			if (execve(_cgiArg[i].c_str(), a, envp) < 0)
+				throw("404::cgi");
 			exit(0);
 		}
 		wait(0);
@@ -231,17 +234,18 @@ std::string Response::cgi( void )
 	}
 	dup2(old_fd1, 1);
 	dup2(old_fd0, 0);
-	char *str;
 	close(fd[1]);
-	// while (c_get_next_line(fd[0], &str))
-	// {
-		// std::cout << str << std::endl;
-		// free(str);
-	// }
-	// close(fd[0]);
-	// std::cout << str << std::endl;
+	char *str;
+	_postResponse = "";
+	while (c_get_next_line(fd[0], &str))
+	{
+		_postResponse += str;
+		_postResponse += "\n";
+		free(str);
+	}
+	close(fd[0]);
+	_postResponse += str;
 	free(str);
-
 	delete [] envp;
 	return  ("");
 }
