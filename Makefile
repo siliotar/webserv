@@ -24,8 +24,7 @@ SOURCEFILES =	main.cpp \
 				UserSocket.cpp \
 				SocketContainer.cpp \
 				Response.cpp \
-				Request.cpp \
-				c_function.cpp
+				Request.cpp
 
 SOURCE = $(addprefix $(SRCDIR), $(SOURCEFILES))
 
@@ -35,15 +34,19 @@ DEP = $(addprefix $(DEPDIR), $(SOURCEFILES:.cpp=.d))
 
 all: $(NAME)
 
-$(DEPDIR)%.d: $(SRCDIR)%.cpp
-	mkdir -p $(dir $@)
-	clang++ -MT $(<:$(SRCDIR)%.cpp=$(OBJDIR)%.o) -MM $< > $@ -I $(INCLUDEDIR)
-
 $(OBJDIR)%.o: $(SRCDIR)%.cpp
 	mkdir -p $(dir $@)
-	clang++ $(FLAGS) -c $< -o $@ -I $(INCLUDEDIR)
+	clang++ $(FLAGS) -c $< -o $@ -I $(INCLUDEDIR) -MMD -MF $(DEPDIR)$*.d
 
-$(NAME): $(DEP) $(OBJ)
+$(OBJDIR):
+	mkdir $(OBJDIR)
+
+$(DEPDIR):
+	mkdir $(DEPDIR)
+
+$(OBJ): | $(OBJDIR) $(DEPDIR)
+
+$(NAME): $(OBJ)
 	clang++  $(OBJ) -o $(NAME)
 
 clean:
@@ -55,9 +58,5 @@ fclean: clean
 re: fclean all
 
 .PHONY: clean fclean re all
-
-q:
-	clang++ www/test.cpp -o www/a.out
-	clang++ www/test_mulicgi.cpp -o www/test_cgi_my
 
 -include $(DEP)
