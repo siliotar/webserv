@@ -24,7 +24,8 @@ SOURCEFILES =	main.cpp \
 				UserSocket.cpp \
 				SocketContainer.cpp \
 				Response.cpp \
-				Request.cpp
+				Request.cpp \
+				c_function.cpp
 
 SOURCE = $(addprefix $(SRCDIR), $(SOURCEFILES))
 

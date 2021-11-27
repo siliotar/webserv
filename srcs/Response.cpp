@@ -30,13 +30,15 @@ _conectionClose(false), _directoryListingDefult(readFile("defaultPages/directory
 				throw("405:response");
 			if (_response == "GET")
 			{
-				// cgi();
+				if (!_cgiArg.empty())
+					cgi();
 				responseGet();
 			}
 			else if (_response == "POST")
 			{
+				if (!_cgiArg.empty())
+					cgi();
 				responsePost();
-				// cgi();
 			}
 			else if (_response == "DELETE")
 				responseDelete();
@@ -98,7 +100,7 @@ void Response::autoIndexOff(struct stat & buff)
 		index += "/";
 	index += _locationConfig->getIndex();
 	if (stat(index.c_str(), &buff) < 0)
-		throw "404";
+		throw "404::autoindexoff";
 	_locationConfig->setReplyBodyFromFile(200, index);
 }
 
@@ -107,7 +109,7 @@ void Response::responseGet()
 {
 	struct stat buff;
 	if (stat(_path.c_str(), &buff) < 0)
-		throw "404";
+		throw "404::responseGet";
 	if (_locationConfig->isAutoindex() && S_ISDIR(buff.st_mode)) 
 	{
 		_locationConfig = _server->getLocation(_path);
@@ -127,12 +129,16 @@ void Response::responsePost()
 	struct stat buff;
 	if (stat(_path.c_str(), &buff) < 0)
 	{
-		std::cout << _postResponse << std::endl;
 		std::ofstream outfile(_path.c_str());
-		outfile << _postResponse;
+		outfile << _bodyResponse;
+		_locationConfig->setReplyBodyFromFile(200, _path);
 	}
-	if (S_ISREG(buff.st_mode))
-		_locationConfig->setReplyBody(200, readFile(_path), "text/html");
+	else if (S_ISREG(buff.st_mode))
+	{
+		std::ofstream outfile(_path.c_str());
+		outfile << _bodyResponse;
+		_locationConfig->setReplyBodyFromFile(200, _path);
+	}
 	else
 		autoIndexOff(buff);
 }
@@ -149,7 +155,13 @@ void Response::responseDelete( void )
 
 std::string Response::getResponse( void )
 {
-	if (_errorFlag == 400)
+	if (_errorFlag == 10)
+	{
+		_conectionClose = true;
+		_errorFlag = 200;
+		_locationConfig->setHeader("Connection", "close");
+	}
+	else if (_errorFlag == 400)
 	{
 		_conectionClose = true;
 		_locationConfig->setHeader("Connection", "close");
@@ -165,10 +177,8 @@ std::string Response::getResponse( void )
 }
 
 
-std::string Response::cgi( void )
+void	Response::cgi( void )
 {
-
-
 	std::vector<std::string> vectorString;
 
 	vectorString.push_back("SERVER_SOFTWARE=BATYANDDED");
@@ -178,15 +188,12 @@ std::string Response::cgi( void )
 	vectorString.push_back("SERVER_PORT=" + _port);
 	vectorString.push_back("REQUEST_METHOD=" + _response);
 	vectorString.push_back("PATH_TRANSLATED=" + _path);
-	// vectorString.push_back("SCRIPT_NAME=/www/cgi_tester");
-	// vectorString.push_back("QUERY_STRING=" + _postResponse);
 	vectorString.push_back("REMOTE_HOST=" + _host);
 	vectorString.push_back("REMOTE_ADDR=127.0.0.1");
 	if (_response == "POST")
 	{	
 		vectorString.push_back("CONTENT_TYPE=" + _postContentType);
 		vectorString.push_back("CONTENT_LENGTH=" + _postContentLength);
-		std::cout << _postContentLength << std::endl;
 	}
 	vectorString.push_back("PATH_INFO=/www/cgi_tester");
 
@@ -209,19 +216,18 @@ std::string Response::cgi( void )
 	{
 		pipe(fd_2);
 		if (i == 0)
-		{
-			write(fd[1], _postResponse.c_str(), _postResponse.size());
+		{ 
+			write(fd[1], _bodyResponse.c_str(), _bodyResponse.size());
 			close(fd[1]);
 		}
 		pid = fork();
 		if (pid == 0)
 		{	
-			 char *const * a = 0;
 			if (dup2(fd_2[1], 1) < 0)
 				write(2, "123\n", 4);
 			if (dup2(fd[0], 0))
 				write(2, "abcd\n", 4);
-			if (execve(_cgiArg[i].c_str(), a, envp) < 0)
+			if (execve(_cgiArg[i].c_str(), 0, envp) < 0)
 				throw("404::cgi");
 			exit(0);
 		}
@@ -236,18 +242,17 @@ std::string Response::cgi( void )
 	dup2(old_fd0, 0);
 	close(fd[1]);
 	char *str;
-	_postResponse = "";
+	_bodyResponse = "";
 	while (c_get_next_line(fd[0], &str))
 	{
-		_postResponse += str;
-		_postResponse += "\n";
+		_bodyResponse += str;
+		_bodyResponse += "\n";
 		free(str);
 	}
 	close(fd[0]);
-	_postResponse += str;
+	_bodyResponse += str;
 	free(str);
 	delete [] envp;
-	return  ("");
 }
-Response::~Response() { }
 
+Response::~Response() { }

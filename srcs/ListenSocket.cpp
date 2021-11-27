@@ -33,7 +33,7 @@ void	ListenSocket::bindSocket()
 
 void	ListenSocket::listenSocket()
 {
-	if (listen(_fd, 128) < 0)
+	if (listen(_fd, 2048) < 0)
 		throw "Failed to listen on socket!";
 }
 

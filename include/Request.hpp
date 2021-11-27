@@ -40,10 +40,11 @@ class Request {
 		std::vector<std::pair<std::string, double> > _tE;
 		std::string _UserAgent;
 
+
 		std::vector<std::string>	_cgiArg;
 
 		Location	*_locationConfig;
-		std::string _postResponse;
+		std::string _bodyResponse;
 		std::string _postContentType;
 		std::string _postContentLength;
 		std::string _response;

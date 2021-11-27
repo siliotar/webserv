@@ -5,8 +5,8 @@
 int main(int iiii, char **ahh, char **vhh)
 {
     static char buff[10]; 
-    read(0, buff, 3);
+    read(0, buff, 9);
     buff[0] = '4';
-    write(1, buff, 3);
+    write(1, buff, 9);
 
 }

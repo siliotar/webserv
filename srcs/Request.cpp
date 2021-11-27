@@ -51,10 +51,9 @@ Request::Request(const std::string & content, Server * serv) : _errorFlag(200), 
 	s >> _response >> _path >> _version;
 	parsPath();
 	_locationConfig = _server->getLocation(_path);
-	_cookieData.push_back("asff");
-	_cookieData.push_back("124556");
+	_cookieData = _locationConfig->getCookie();
+	_cgiArg = _locationConfig->getCGI();
 
-	// _cookieData = _server->getCookie();
 	try {
 		std::vector<std::string>::const_iterator it_begin = _locationConfig->getAllowMethods().begin();
 		std::vector<std::string>::const_iterator it_end = _locationConfig->getAllowMethods().end();
@@ -69,16 +68,8 @@ Request::Request(const std::string & content, Server * serv) : _errorFlag(200), 
 			throw "405::findmethod";
 	}
 	catch (const char * error) {
-		std::cout << RED << error << RESET << std::endl;
 		_errorFlag = atoi(error);
 	}
-
-	_cgiArg.push_back("./www/cgi_tester");
-	// _cgiArg.push_back("./www/cgi_tester");
-	// _cgiArg.push_back("./www/cgi_tester");
-	// _cgiArg.push_back("./www/cgi_tester");
-	// _cgiArg.push_back("./www/test_cgi_my");
-
 }
 
 void Request::parsResponse(std::istringstream & ss, std::string & str)
@@ -125,7 +116,7 @@ void Request::parsResponse(std::istringstream & ss, std::string & str)
 			std::getline (ss, str);
 			if (!ss)
 				break;
-			_postResponse += str + '\n';
+			_bodyResponse += str + '\n';
 		}
 }
 
@@ -203,7 +194,9 @@ void Request::SetCookie(const std::string & str)
 
 void Request::Conection(const std::string & str)
 {
-	if (str == " close" || str != " keep-alive")
+	if (str == " close")
+		throw("10::close");
+	if (str != " keep-alive")
 		throw("400:Conection");
 }
 
@@ -298,4 +291,3 @@ void Request::TE(const std::string & str) {
 }
 
 Request::~Request() {}
-

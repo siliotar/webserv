@@ -32,7 +32,7 @@ class Response : public Request {
 		
 		void responseDelete( void );
 
-		std::string cgi( void );
+		void cgi( void );
 
 		Response();
 

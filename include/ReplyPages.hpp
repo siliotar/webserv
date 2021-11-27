@@ -19,7 +19,7 @@ class ReplyPages
 	private:
 		std::map<unsigned short, std::string>	_names;
 		std::map<unsigned short, t_body>		_replyBodys;
-		std::map<std::string, std::string>		_headers;
+		std::map<std::string, std::vector<std::string> >		_headers;
 
 		ReplyPages(const ReplyPages& copy);
 		ReplyPages	&operator=(const ReplyPages& other);
